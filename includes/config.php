@@ -9,7 +9,7 @@ if (!isset($_SESSION)) {
 // Database configuration
 $host = "localhost:3306";
 $user = "root";
-$pass = ""; // Add your database password here
+$pass = ""; 
 $dbname = "urbanthrift_db";
 
 $conn = new mysqli($host, $user, $pass, $dbname);
