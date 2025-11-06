@@ -19,9 +19,14 @@ $result = $stmt->get_result();
 include '../../../includes/header.php';
 ?>
 
-<h2>Sales Transactions</h2>
+<div class="admin-container">
+    <?php include '../sidebar.php'; ?>
 
-<table border="1" width="100%">
+    <main class="admin-content">
+        <h2>Sales Transactions</h2>
+        <a href="create.php" class="btn-primary">➕ Create Transaction</a>
+
+        <table class="styled-table">
 <tr>
     <th>ID</th>
     <th>Customer</th>
@@ -39,12 +44,15 @@ include '../../../includes/header.php';
     <td>₱<?= number_format($row['total_amount'], 2); ?></td>
     <td><?= htmlspecialchars($row['order_date']); ?></td>
     <td>
-        <a href="view.php?id=<?= intval($row['id']); ?>">👁 View</a> |
-        <a href="delete.php?id=<?= intval($row['id']); ?>" 
+        <a class="btn-view" href="view.php?id=<?= intval($row['id']); ?>">👁 View</a>
+        <a class="btn-primary" href="receipt_print.php?id=<?= intval($row['id']); ?>" target="_blank">🖨️ Print</a>
+        <a class="btn-delete" href="delete.php?id=<?= intval($row['id']); ?>" 
            onclick="return confirm('Delete this transaction?');">🗑 Delete</a>
     </td>
 </tr>
 <?php endwhile; ?>
-</table>
+        </table>
+    </main>
+</div>
 
 <?php include '../../../includes/footer.php'; ?>

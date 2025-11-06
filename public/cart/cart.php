@@ -67,7 +67,21 @@ $grandTotal += $total;
 
 <div style="text-align:center; margin-top:20px;">
     <h3>Total: ₱<?= number_format($grandTotal,2) ?></h3>
-    <a class="btn" href="checkout.php">Checkout ✅</a>
+    
+    <form method="POST" action="checkout.php" style="display: inline-block; text-align: left; background: #12121A; padding: 20px; border-radius: 8px; margin-top: 15px;">
+        <label style="display: block; margin-bottom: 10px;">
+            <strong>Payment Method:</strong>
+        </label>
+        <select name="payment_method" style="padding: 8px; margin-bottom: 15px; width: 200px; background: #1E1E28; color: #fff; border: 1px solid #7B1FA2; border-radius: 5px;">
+            <option value="Cash">Cash</option>
+            <option value="GCash">GCash</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+        </select>
+        <br>
+        <button type="submit" class="btn">Checkout ✅</button>
+    </form>
 </div>
 
 </body>

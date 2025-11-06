@@ -9,10 +9,23 @@ if (!isset($_SESSION['customer_id'])) {
 
 $customer_id = $_SESSION['customer_id'];
 
-$stmt = $conn->prepare("SELECT * FROM transactions WHERE customer_id = ? ORDER BY transaction_date DESC");
+// Get customer record ID from users table
+$stmt = $conn->prepare("SELECT id FROM customers WHERE email = (SELECT email FROM users WHERE id = ?)");
 $stmt->bind_param("i", $customer_id);
 $stmt->execute();
-$query = $stmt->get_result();
+$customer_result = $stmt->get_result();
+$customer_record = $customer_result->fetch_assoc();
+
+if (!$customer_record) {
+    // No orders yet
+    $query = null;
+} else {
+    $customer_record_id = $customer_record['id'];
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE customer_id = ? ORDER BY order_date DESC");
+    $stmt->bind_param("i", $customer_record_id);
+    $stmt->execute();
+    $query = $stmt->get_result();
+}
 ?>
 
 <!DOCTYPE html>
@@ -37,27 +50,34 @@ button:hover { background:#7e32bb; }
 
 <table>
 <tr>
-    <th>Transaction ID</th>
+    <th>Order ID</th>
     <th>Date</th>
+    <th>Payment Method</th>
     <th>Status</th>
     <th>Total</th>
     <th>Receipt</th>
 </tr>
 
-<?php while($row = $query->fetch_assoc()): ?>
-<tr>
-    <td><?= htmlspecialchars($row['id']) ?></td>
-    <td><?= htmlspecialchars($row['transaction_date']) ?></td>
-    <td><span class="status <?= htmlspecialchars($row['status']) ?>"><?= htmlspecialchars($row['status']) ?></span></td>
-    <td>₱<?= number_format($row['total'],2) ?></td>
-   <td>
-    <a href="../admin/transactions/view.php?id=<?= intval($row['id']) ?>">
-        <button>View Receipt</button>
-    </a>
-</td>
-
-</tr>
-<?php endwhile; ?>
+<?php if ($query && $query->num_rows > 0): ?>
+    <?php while($row = $query->fetch_assoc()): ?>
+    <tr>
+        <td><?= htmlspecialchars($row['id']) ?></td>
+        <td><?= htmlspecialchars($row['order_date']) ?></td>
+        <td><?= htmlspecialchars($row['payment_method']) ?></td>
+        <td><span class="status <?= htmlspecialchars($row['status']) ?>"><?= htmlspecialchars($row['status']) ?></span></td>
+        <td>₱<?= number_format($row['total_amount'],2) ?></td>
+       <td>
+        <a href="../admin/transactions/view.php?id=<?= intval($row['id']) ?>">
+            <button>View Receipt</button>
+        </a>
+    </td>
+    </tr>
+    <?php endwhile; ?>
+<?php else: ?>
+    <tr>
+        <td colspan="6" style="text-align: center; padding: 20px;">No orders yet. Start shopping!</td>
+    </tr>
+<?php endif; ?>
 
 </table>
 

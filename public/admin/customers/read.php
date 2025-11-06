@@ -13,10 +13,13 @@ $result = $stmt->get_result();
 include '../../../includes/header.php';
 ?>
 
-<h2>Customers List</h2>
-<br>
+<div class="admin-container">
+    <?php include '../sidebar.php'; ?>
 
-<table border="1" width="100%">
+    <main class="admin-content">
+        <h2>Customers List</h2>
+
+        <table class="styled-table">
 <tr>
     <th>ID</th>
     <th>Username</th>
@@ -34,12 +37,15 @@ include '../../../includes/header.php';
     <td><?= htmlspecialchars($row['role']); ?></td>
     <td><?= htmlspecialchars($row['created_at'] ?? 'N/A'); ?></td>
     <td>
-        <a href="update.php?id=<?= intval($row['id']); ?>">✏ Edit</a> |
-        <a href="delete.php?id=<?= intval($row['id']); ?>" 
+        <a class="btn-view" href="orders.php?customer_id=<?= intval($row['id']); ?>">📦 Orders</a>
+        <a class="btn-edit" href="update.php?id=<?= intval($row['id']); ?>">✏ Edit</a>
+        <a class="btn-delete" href="delete.php?id=<?= intval($row['id']); ?>" 
            onclick="return confirm('Delete this customer?');">🗑 Delete</a>
     </td>
 </tr>
 <?php endwhile; ?>
-</table>
+        </table>
+    </main>
+</div>
 
 <?php include '../../../includes/footer.php'; ?>
