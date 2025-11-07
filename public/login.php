@@ -21,7 +21,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
 
-        if (password_verify($password, $row['password'])) {
+        // Check if admin - use plain text password comparison
+        // Check if customer - use password hash verification
+        $password_valid = false;
+        
+        if ($row['role'] == "admin") {
+            // Plain text comparison for admin
+            $password_valid = ($password === $row['password']);
+        } else {
+            // Hashed password verification for customers
+            $password_valid = password_verify($password, $row['password']);
+        }
+
+        if ($password_valid) {
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['role'] = $row['role'];
             
@@ -143,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             min-height: 100vh;
         }
 
-        /* Left Side - Branding */
+        /* Left Section - Branding */
         .left-section {
             flex: 1;
             display: flex;
@@ -223,7 +235,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-weight: 500;
         }
 
-        /* Right Side - Login Form */
+        /* Right Section - Login Form */
         .right-section {
             flex: 1;
             display: flex;
