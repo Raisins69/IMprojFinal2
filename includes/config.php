@@ -21,7 +21,7 @@ if ($conn->connect_error) {
 // Function: Check Login Redirect
 function checkLogin() {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: /IMProj/public/login.php");
+        header("Location: /projectIManagement/public/login.php");
         exit();
     }
 }

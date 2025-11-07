@@ -64,7 +64,7 @@ include '../../includes/header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | UrbanThrift</title>
-    <link rel="stylesheet" href="/IMProj/public/css/style.css">
+    <link rel="stylesheet" href="/projectIManagement/public/css/style.css">
     <style>
         .dashboard-wrapper {
             max-width: 1400px;

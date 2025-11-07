@@ -61,7 +61,7 @@ $categories_query = $conn->query("SELECT DISTINCT category FROM products WHERE s
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Thrift Clothing | UrbanThrift</title>
-    <link rel="stylesheet" href="/IMProj/public/css/style.css">
+    <link rel="stylesheet" href="/projectIManagement/public/css/style.css">
     <style>
         .shop-header {
             text-align: center;
