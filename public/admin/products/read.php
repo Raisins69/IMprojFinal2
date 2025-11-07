@@ -1,10 +1,8 @@
 <?php
-include __DIR__ . '/../../includes/config.php';
+include __DIR__ . '/../../../includes/config.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
-    header("Location: ../../login.php");
-    exit();
-}
+// Check admin access
+checkAdmin();
 
 include '../../../includes/header.php';
 
@@ -65,11 +63,11 @@ $sizes = $conn->query("SELECT DISTINCT size FROM products ORDER BY size");
 ?>
 
 <div class="admin-container">
-    <?php include '../sidebar.php'; ?>
+    <?php include __DIR__ . '/../sidebar.php'; ?>
 
     <main class="admin-content">
         <h2>Products List</h2>
-        <a href="create.php" class="btn-primary">➕ Add Product</a>
+        <a href="<?= ADMIN_URL ?>/products/create.php" class="btn-primary">➕ Add Product</a>
 
         <!-- Search and Filter Form -->
         <form method="GET" class="form-box" style="margin: 20px 0;">
@@ -131,7 +129,7 @@ $sizes = $conn->query("SELECT DISTINCT size FROM products ORDER BY size");
             <tbody>
                 <?php while ($row = $result->fetch_assoc()) { ?>
                     <tr>
-                        <td><img src="../../uploads/<?= htmlspecialchars($row['image']); ?>" height="50"></td>
+                        <td><img src="<?= BASE_URL ?>/uploads/<?= htmlspecialchars($row['image']); ?>" height="50"></td>
                         <td><?= htmlspecialchars($row['name']); ?></td>
                         <td><?= htmlspecialchars($row['brand']); ?></td>
                         <td><?= htmlspecialchars($row['category']); ?></td>
@@ -140,8 +138,8 @@ $sizes = $conn->query("SELECT DISTINCT size FROM products ORDER BY size");
                         <td><?= htmlspecialchars($row['stock']); ?></td>
                         <td><?= htmlspecialchars($row['condition_type']); ?></td>
                         <td>
-                            <a class="btn-edit" href="update.php?id=<?= intval($row['id']); ?>">✏ Edit</a>
-                            <a class="btn-delete" href="delete.php?id=<?= intval($row['id']); ?>" onclick="return confirm('Delete this product?');">🗑 Delete</a>
+                            <a class="btn-edit" href="<?= ADMIN_URL ?>/products/update.php?id=<?= intval($row['id']); ?>">✏ Edit</a>
+                            <a class="btn-delete" href="<?= ADMIN_URL ?>/products/delete.php?id=<?= intval($row['id']); ?>" onclick="return confirm('Delete this product?');">🗑 Delete</a>
                         </td>
                     </tr>
                 <?php } ?>

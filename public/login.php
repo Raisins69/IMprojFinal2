@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../includes/config.php';
+include __DIR__ . '/../../../includes/config.php';
 
 $message = "";
 $message_type = "";
@@ -21,17 +21,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
 
-        // Check if admin - use plain text password comparison
-        // Check if customer - use password hash verification
-        $password_valid = false;
-        
-        if ($row['role'] == "admin") {
-            // Plain text comparison for admin
-            $password_valid = ($password === $row['password']);
-        } else {
-            // Hashed password verification for customers
-            $password_valid = password_verify($password, $row['password']);
-        }
+        // Use plain text comparison for both admin and customer
+        $password_valid = ($password === $row['password']);
 
         if ($password_valid) {
             $_SESSION['user_id'] = $row['id'];
