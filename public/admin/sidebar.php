@@ -17,6 +17,6 @@ $base_path = ($current_dir === 'admin') ? '.' : '..';
         <li><a href="<?= $base_path ?>/expenses/read.php">💰 Expenses</a></li>
         <li><a href="<?= $base_path ?>/transactions/read.php">🧾 Sales</a></li>
         <li><a href="<?= $base_path ?>/reports/sales_report.php">📈 Reports</a></li>
-        <li><a href="../logout.php">🚪 Logout</a></li>
+        <li><a href="../../logout.php">🚪 Logout</a></li>
     </ul>
 </aside>
