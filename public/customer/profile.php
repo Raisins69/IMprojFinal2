@@ -324,64 +324,79 @@ include '../../includes/header.php';
                 <?= strtoupper(substr($user['username'], 0, 1)) ?>
             </div>
 
-            <form method="POST" id="profileForm" enctype="multipart/form-data">
+            <form method="POST" id="profileForm" enctype="multipart/form-data" novalidate>
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Profile Photo</label>
                         <?php if ($user['profile_photo']): ?>
                             <img src="<?= BASE_URL ?>/uploads/profiles/<?= htmlspecialchars($user['profile_photo']) ?>" 
-                                 style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid var(--primary);">
+                                 style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid var(--primary);"
+                                 id="profileImage">
                         <?php endif; ?>
                         <input type="file" 
                                name="profile_photo" 
                                class="form-input" 
                                accept="image/*"
                                id="photoInput"
+                               data-pattern="\.(jpg|jpeg|png|gif|webp)$"
+                               data-pattern-message="Please upload a valid image file (JPG, PNG, GIF, or WebP)"
+                               onchange="previewImage(this)"
                                disabled>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Full Name</label>
+                        <label class="form-label" for="usernameInput">Full Name</label>
                         <input type="text" 
                                name="username" 
                                class="form-input" 
                                value="<?= htmlspecialchars($user['username']) ?>" 
                                id="usernameInput"
-                               disabled
-                               required>
+                               data-required="true"
+                               data-min-length="2"
+                               data-max-length="100"
+                               data-pattern="^[a-zA-Z\s]+"
+                               data-pattern-message="Please enter a valid name (letters and spaces only)"
+                               disabled>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Email Address</label>
+                        <label class="form-label" for="emailInput">Email Address</label>
                         <input type="email" 
                                name="email" 
                                class="form-input" 
                                value="<?= htmlspecialchars($user['email']) ?>" 
                                id="emailInput"
-                               disabled
-                               required>
+                               data-required="true"
+                               data-pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                               data-pattern-message="Please enter a valid email address"
+                               disabled>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Phone Number</label>
+                        <label class="form-label" for="phoneInput">Phone Number</label>
                         <input type="tel" 
                                name="phone" 
                                class="form-input" 
                                value="<?= htmlspecialchars($user['phone'] ?? '') ?>" 
                                id="phoneInput"
-                               disabled
+                               data-required="true"
+                               data-pattern="^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$"
+                               data-pattern-message="Please enter a valid phone number"
                                placeholder="+63 XXX XXX XXXX"
-                               required>
+                               disabled>
                     </div>
 
                     <div class="form-group full-width">
-                        <label class="form-label">Address</label>
+                        <label class="form-label" for="addressInput">Address</label>
                         <textarea name="address" 
                                   class="form-textarea" 
                                   id="addressInput"
-                                  disabled
+                                  data-required="true"
+                                  data-min-length="10"
+                                  data-max-length="500"
+                                  data-pattern-message="Please enter a valid address"
                                   placeholder="Your complete address"
-                                  required><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+                                  disabled><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
                     </div>
                 </div>
 
@@ -420,16 +435,83 @@ include '../../includes/header.php';
             document.getElementById(id).disabled = false;
         });
         
-        // Toggle button visibility
+        // Toggle buttons
         document.getElementById('viewMode').style.display = 'none';
         document.getElementById('editMode').style.display = 'flex';
+        
+        // Focus on first input
+        document.getElementById('usernameInput').focus();
     }
     
     function cancelEdit() {
-        // Reload the page to reset form
-        window.location.reload();
+        // Disable all inputs
+        inputs.forEach(id => {
+            document.getElementById(id).disabled = true;
+            // Reset to original values if needed
+        });
+        
+        // Toggle buttons
+        document.getElementById('viewMode').style.display = 'flex';
+        document.getElementById('editMode').style.display = 'none';
+        
+        // Reset any validation errors
+        const form = document.getElementById('profileForm');
+        const errorMessages = form.querySelectorAll('.invalid-feedback');
+        errorMessages.forEach(error => error.remove());
+        
+        const invalidInputs = form.querySelectorAll('.is-invalid');
+        invalidInputs.forEach(input => input.classList.remove('is-invalid'));
     }
     
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            const profileImage = document.getElementById('profileImage');
+            
+            reader.onload = function(e) {
+                if (profileImage) {
+                    profileImage.src = e.target.result;
+                } else {
+                    // Create image element if it doesn't exist
+                    const img = document.createElement('img');
+                    img.id = 'profileImage';
+                    img.src = e.target.result;
+                    img.style = 'width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid var(--primary);';
+                    input.parentNode.insertBefore(img, input);
+                }
+            };
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Initialize form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('profileForm');
+        
+        // Add event listener for form submission
+        form.addEventListener('submit', function(e) {
+            // Let the form validation script handle the validation
+            // This will be handled by form-validation.js
+        });
+        
+        // Add input event listeners for real-time validation
+        inputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('blur', function() {
+                    if (!input.disabled) {
+                        // Trigger validation for this field
+                        const event = new Event('blur');
+                        input.dispatchEvent(event);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<script>
     // Auto-format phone number
     const phoneInput = document.getElementById('phoneInput');
     phoneInput.addEventListener('input', function(e) {

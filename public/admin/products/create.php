@@ -97,52 +97,193 @@ require_once __DIR__ . '/../../../includes/header.php';
 
         <p class="msg"><?= $msg ?></p>
 
-        <form class="form-box" method="POST" enctype="multipart/form-data">
-            <label>Product Name</label>
-            <input type="text" name="name" required>
+        <form class="form-box" method="POST" enctype="multipart/form-data" id="productForm" novalidate>
+            <div class="form-group">
+                <label for="name">Product Name</label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       class="form-input"
+                       data-required="true"
+                       data-min-length="3"
+                       data-max-length="100"
+                       data-pattern-message="Product name must be between 3-100 characters">
+            </div>
 
-            <label>Brand</label>
-            <input type="text" name="brand">
+            <div class="form-group">
+                <label for="brand">Brand</label>
+                <input type="text" 
+                       id="brand" 
+                       name="brand" 
+                       class="form-input"
+                       data-required="true"
+                       data-min-length="2"
+                       data-max-length="50"
+                       data-pattern-message="Brand must be between 2-50 characters">
+            </div>
 
-            <label>Category</label>
-            <input type="text" name="category" required>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <input type="text" 
+                       id="category" 
+                       name="category" 
+                       class="form-input"
+                       data-required="true"
+                       data-pattern="^[a-zA-Z\s&]+"
+                       data-pattern-message="Please enter a valid category name">
+            </div>
 
-            <label>Size</label>
-            <input type="text" name="size" required>
+            <div class="form-group">
+                <label for="size">Size</label>
+                <input type="text" 
+                       id="size" 
+                       name="size" 
+                       class="form-input"
+                       data-required="true"
+                       data-pattern-message="Please specify the product size">
+            </div>
 
-            <label>Price (₱)</label>
-            <input type="number" name="price" step="0.01" required>
+            <div class="form-group">
+                <label for="price">Price (₱)</label>
+                <input type="number" 
+                       id="price" 
+                       name="price" 
+                       class="form-input"
+                       step="0.01" 
+                       min="0.01"
+                       data-required="true"
+                       data-pattern="^\d+(\.\d{1,2})?$"
+                       data-pattern-message="Please enter a valid price">
+            </div>
 
-            <label>Stock Quantity</label>
-            <input type="number" name="stock" required>
+            <div class="form-group">
+                <label for="stock">Stock Quantity</label>
+                <input type="number" 
+                       id="stock" 
+                       name="stock" 
+                       class="form-input"
+                       min="0"
+                       data-required="true"
+                       data-pattern="^\d+$"
+                       data-pattern-message="Please enter a valid stock quantity">
+            </div>
 
-            <label>Condition Type</label>
-            <select name="condition_type">
-                <option value="Like New">Like New</option>
-                <option value="Good">Good</option>
-                <option value="Slightly Used">Slightly Used</option>
-            </select>
+            <div class="form-group">
+                <label for="condition_type">Condition Type</label>
+                <select name="condition_type" 
+                        id="condition_type" 
+                        class="form-input"
+                        data-required="true">
+                    <option value="">-- Select Condition --</option>
+                    <option value="Like New">Like New</option>
+                    <option value="Good">Good</option>
+                    <option value="Slightly Used">Slightly Used</option>
+                </select>
+            </div>
 
-            <label>Supplier</label>
-            <select name="supplier_id" class="form-control" required>
-                <option value="">-- Select Supplier --</option>
-                <?php foreach ($suppliers as $supplier): ?>
-                    <option value="<?= htmlspecialchars($supplier['id']) ?>">
-                        <?= htmlspecialchars($supplier['name']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <?php if (empty($suppliers)): ?>
-                <p class="text-warning">No suppliers available. <a href="../suppliers/create.php">Add a supplier first</a>.</p>
-            <?php endif; ?>
+            <div class="form-group">
+                <label for="supplier_id">Supplier</label>
+                <select name="supplier_id" 
+                        id="supplier_id" 
+                        class="form-input"
+                        data-required="true"
+                        data-pattern-message="Please select a supplier">
+                    <option value="">-- Select Supplier --</option>
+                    <?php foreach ($suppliers as $supplier): ?>
+                        <option value="<?= htmlspecialchars($supplier['id']) ?>">
+                            <?= htmlspecialchars($supplier['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (empty($suppliers)): ?>
+                    <p class="text-warning">No suppliers available. <a href="../suppliers/create.php">Add a supplier first</a>.</p>
+                <?php endif; ?>
+            </div>
 
-            <label>Product Image</label>
-            <input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp" required>
-            <small class="text-muted">Allowed formats: JPG, PNG, GIF, WebP. Max size: 2MB</small>
+            <div class="form-group">
+                <label for="image">Product Image</label>
+                <input type="file" 
+                       id="image" 
+                       name="image" 
+                       class="form-input"
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       data-required="true"
+                       data-file-type="image/jpeg,image/png,image/gif,image/webp"
+                       data-max-size="2MB"
+                       data-pattern-message="Please upload a valid image (JPG, PNG, GIF, or WebP, max 2MB)">
+                <small class="text-muted">Allowed formats: JPG, PNG, GIF, WebP. Max size: 2MB</small>
+            </div>
 
-            <button type="submit" class="btn-primary">Save Product</button>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    💾 Save Product
+                </button>
+                <a href="index.php" class="btn-secondary">
+                    ❌ Cancel
+                </a>
+            </div>
         </form>
     </main>
 </div>
 
 <?php require_once __DIR__ . '/../../../includes/footer.php'; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize form validation
+    const form = document.getElementById('productForm');
+    
+    // Add event listener for form submission
+    form.addEventListener('submit', function(e) {
+        // The form validation will be handled by form-validation.js
+        // This just ensures the form is properly initialized
+    });
+    
+    // Add image preview functionality
+    const imageInput = document.getElementById('image');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File size must be less than 2MB');
+                    this.value = '';
+                    return;
+                }
+                
+                // Check file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please upload a valid image file (JPG, PNG, GIF, or WebP)');
+                    this.value = '';
+                    return;
+                }
+                
+                // Show image preview
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // Remove existing preview if any
+                    const existingPreview = document.getElementById('imagePreview');
+                    if (existingPreview) {
+                        existingPreview.remove();
+                    }
+                    
+                    // Create preview image
+                    const preview = document.createElement('img');
+                    preview.id = 'imagePreview';
+                    preview.src = event.target.result;
+                    preview.style.maxWidth = '200px';
+                    preview.style.marginTop = '10px';
+                    preview.style.borderRadius = '4px';
+                    preview.style.border = '1px solid #ddd';
+                    
+                    // Insert after the file input
+                    imageInput.parentNode.insertBefore(preview, imageInput.nextSibling);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>

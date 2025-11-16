@@ -150,30 +150,38 @@ require_once __DIR__ . '/../../../includes/header.php';
 
         <!-- Edit Form -->
         <h3 style="color: var(--primary-light); margin: 2rem 0 1rem 0;">✏ Edit Order Details</h3>
-        <form method="POST" class="form-box" style="max-width: 600px;">
+        <form method="POST" id="updateTransactionForm" class="form-box" style="max-width: 600px;" novalidate>
             <div class="form-group">
-                <label>Payment Method</label>
-                <select name="payment_method" required>
+                <label for="payment_method">Payment Method <span class="required">*</span></label>
+                <select id="payment_method" name="payment_method" class="form-input" data-required="true">
+                    <option value="">-- Select Payment Method --</option>
                     <option value="Cash" <?= $order['payment_method'] == 'Cash' ? 'selected' : '' ?>>💵 Cash</option>
                     <option value="GCash" <?= $order['payment_method'] == 'GCash' ? 'selected' : '' ?>>📱 GCash</option>
                     <option value="Credit Card" <?= $order['payment_method'] == 'Credit Card' ? 'selected' : '' ?>>💳 Credit Card</option>
                     <option value="Bank Transfer" <?= $order['payment_method'] == 'Bank Transfer' ? 'selected' : '' ?>>🏦 Bank Transfer</option>
                 </select>
+                <div class="error-message"></div>
             </div>
 
             <div class="form-group">
-                <label>Order Status</label>
-                <select name="status" required>
+                <label for="status">Order Status <span class="required">*</span></label>
+                <select id="status" name="status" class="form-input" data-required="true">
+                    <option value="">-- Select Status --</option>
                     <option value="Pending" <?= $order['status'] == 'Pending' ? 'selected' : '' ?>>⏳ Pending</option>
                     <option value="Processing" <?= $order['status'] == 'Processing' ? 'selected' : '' ?>>🔄 Processing</option>
                     <option value="Completed" <?= $order['status'] == 'Completed' ? 'selected' : '' ?>>✅ Completed</option>
                     <option value="Cancelled" <?= $order['status'] == 'Cancelled' ? 'selected' : '' ?>>❌ Cancelled</option>
                 </select>
+                <div class="error-message"></div>
             </div>
 
-            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button type="submit" class="btn-primary">💾 Save Changes</button>
-                <a href="read.php" class="btn-secondary">Cancel</a>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    💾 Save Changes
+                </button>
+                <a href="read.php" class="btn-secondary">
+                    ❌ Cancel
+                </a>
             </div>
         </form>
 
@@ -183,6 +191,179 @@ require_once __DIR__ . '/../../../includes/header.php';
                 Stock was already adjusted when the order was created.
             </p>
         </div>
+
+        <style>
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+            outline: none;
+        }
+        
+        .form-input.is-invalid {
+            border-color: #e53e3e;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23e53e3e' viewBox='-2 -2 7 7'%3e%3cpath stroke='%23e53e3e' d='M0 0l3 3m0-3L0 3'/%3e%3ccircle r='.5'/%3e%3ccircle cx='3' r='.5'/%3e%3ccircle cy='3' r='.5'/%3e%3ccircle cx='3' cy='3' r='.5'/%3e%3c/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.25rem 1.25rem;
+        }
+        
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            min-height: 1.25rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn-primary, .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        
+        .required {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+        </style>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('updateTransactionForm');
+            
+            // Form submission handler
+            form.addEventListener('submit', function(e) {
+                if (validateForm() && confirm('Are you sure you want to update this transaction?')) {
+                    return true;
+                }
+                e.preventDefault();
+                return false;
+            });
+            
+            // Live validation on blur for all form inputs
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                // Remove error class when user starts typing
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid')) {
+                        this.classList.remove('is-invalid');
+                        const errorElement = this.closest('.form-group')?.querySelector('.error-message') || 
+                                         this.parentElement.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = '';
+                        }
+                    }
+                });
+            });
+            
+            // Initialize form validation
+            function validateForm() {
+                let isValid = true;
+                formInputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                    }
+                });
+                return isValid;
+            }
+            
+            // Validate a single field
+            function validateField(field) {
+                const value = field.value.trim();
+                const errorElement = field.closest('.form-group')?.querySelector('.error-message') || 
+                                   field.parentElement.querySelector('.error-message');
+                
+                // Skip validation for hidden fields
+                if (field.type === 'hidden') return true;
+                
+                // Required validation
+                if (field.getAttribute('data-required') === 'true' && !value) {
+                    showError(field, 'This field is required');
+                    return false;
+                }
+                
+                // If we got here, the field is valid
+                field.classList.remove('is-invalid');
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+                return true;
+            }
+            
+            // Show error message
+            function showError(field, message) {
+                field.classList.add('is-invalid');
+                const errorElement = field.closest('.form-group')?.querySelector('.error-message') || 
+                                   field.parentElement.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.textContent = message;
+                }
+                field.focus();
+            }
+        });
+        </script>
     </main>
 </div>
 

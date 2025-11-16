@@ -681,12 +681,12 @@ $featured_query = $conn->query("SELECT * FROM products WHERE stock > 0 ORDER BY 
         </div>
 
         <div class="view-all-container">
-            <a href="shop.php" class="view-all-btn">View All Products →</a>
+            <a href="public/shop.php" class="view-all-btn">View All Products →</a>
         </div>
     </div>
 </section>
 
-<?php include '../includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
 </body>
 </html>
