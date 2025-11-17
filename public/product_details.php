@@ -367,12 +367,15 @@ include '../includes/header.php';
                                id="quantity" 
                                name="quantity" 
                                value="1" 
+                               min="1" 
+                               max="<?= $product['stock'] ?>" 
                                class="form-input quantity-input" 
                                style="width: 100px; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--dark-light); color: var(--text-primary);"
                                data-required="true"
                                data-min="1"
                                data-max="<?= $product['stock'] ?>"
                                data-pattern-message="Please enter a valid quantity between 1 and <?= $product['stock'] ?>">
+                        <div id="quantity-error" style="color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem; display: none;">Please enter a valid quantity (1-<?= $product['stock'] ?>)</div>
                     </div>
                     <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                         <span>🛒</span> Add to Cart
@@ -558,6 +561,45 @@ include '../includes/header.php';
 </div>
 
 <script>
+// Prevent form submission if quantity is invalid
+function validateQuantity() {
+    const quantityInput = document.getElementById('quantity');
+    const quantity = parseInt(quantityInput.value);
+    const maxStock = parseInt(quantityInput.max);
+    const errorElement = document.getElementById('quantity-error');
+    
+    if (isNaN(quantity) || quantity < 1 || quantity > maxStock) {
+        errorElement.style.display = 'block';
+        quantityInput.style.borderColor = '#ef4444';
+        return false;
+    }
+    
+    errorElement.style.display = 'none';
+    quantityInput.style.borderColor = 'var(--border-color)';
+    return true;
+}
+
+// Add event listeners for quantity validation
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('quantity');
+    if (quantityInput) {
+        quantityInput.addEventListener('change', validateQuantity);
+        quantityInput.addEventListener('input', validateQuantity);
+        
+        // Also validate on form submission
+        const form = quantityInput.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!validateQuantity()) {
+                    e.preventDefault();
+                    return false;
+                }
+                return true;
+            });
+        }
+    }
+});
+
 // List of bad words for client-side validation (keep in sync with server-side)
 const profanityWords = [
     // English profanity
