@@ -1,23 +1,19 @@
 <?php
 include __DIR__ . '/../../includes/config.php';
 
-// Prevent direct access if not logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'customer') {
     header("Location: ../login.php");
     exit();
 }
 
-// Get user data and initialize stats
 $user_id = $_SESSION['user_id'];
 $total_orders = 0;
 $total_spent = 0;
 $total_items = 0;
 $account_status = 'Active';
 
-// Debug: Log the user ID we're querying for
 error_log("Fetching dashboard data for user ID: " . $user_id);
 
-// Get user details from session
 if (!isset($_SESSION['user_id'])) {
     header("Location: " . BASE_URL . "/login.php");
     exit();
@@ -25,7 +21,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// First, get the customer ID that matches this user's email
 $stmt = $conn->prepare("SELECT u.id, u.username, u.email, u.profile_photo, u.is_active, c.id as customer_id 
                         FROM users u 
                         LEFT JOIN customers c ON u.email = c.email 
@@ -35,11 +30,9 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 
 if ($user) {
-    // Set account status based on is_active flag
     $account_status = $user['is_active'] ? 'Active' : 'Inactive';
     
     if (empty($user['customer_id'])) {
-        // If no customer record exists, create one
         $stmt = $conn->prepare("INSERT INTO customers (name, email) VALUES (?, ?)");
         $stmt->bind_param("ss", $user['username'], $user['email']);
         if ($stmt->execute()) {
@@ -55,8 +48,13 @@ if ($user) {
     }
     
     try {
-        // Get order statistics
-        $sql = "\n            SELECT \n                COUNT(*) as total_orders,\n                SUM(CASE WHEN status = 'Completed' THEN total_amount ELSE 0 END) as total_spent,\n                SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed_orders\n            FROM orders \n            WHERE customer_id = ?";
+        $sql = "
+            SELECT 
+                COUNT(*) as total_orders,
+                SUM(CASE WHEN status = 'Completed' THEN total_amount ELSE 0 END) as total_spent,
+                SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed_orders
+            FROM orders 
+            WHERE customer_id = ?";
             
         error_log("Debug - Running query: $sql");
         error_log("Debug - With customer_id: $customer_id");
@@ -78,7 +76,6 @@ if ($user) {
         
         error_log("Debug - Calculated totals - Orders: $total_orders, Spent: $total_spent");
         
-        // Debug log
         error_log(sprintf(
             "Customer %d - Orders: %d, Completed: %d, Total Spent: %.2f",
             $customer_id,
@@ -89,7 +86,6 @@ if ($user) {
         
         error_log("Total orders: $total_orders, Total spent: $total_spent");
         
-        // Get total items from non-cancelled orders
         $stmt = $conn->prepare("
             SELECT COALESCE(SUM(oi.quantity), 0) as total_items
             FROM orders o
@@ -103,7 +99,6 @@ if ($user) {
         
         error_log("Total items in non-cancelled orders: $total_items");
         
-        // Get recent orders with item counts
         $stmt = $conn->prepare("
             SELECT 
                 o.*,
@@ -118,7 +113,6 @@ if ($user) {
         $stmt->execute();
         $recent_orders = $stmt->get_result();
         
-        // Debug: Log recent orders count
         error_log("Recent orders found: " . $recent_orders->num_rows);
         
     } catch (Exception $e) {
@@ -471,27 +465,22 @@ include '../../includes/header.php';
 <body>
 
 <div class="dashboard-wrapper">
-    <!-- Header -->
     <div class="dashboard-header">
         <div class="profile-picture-container">
             <?php
-            // Check if user has a profile picture, otherwise use default
             $profile_pic = !empty($user['profile_photo']) 
                 ? '/IMprojFinal/public/uploads/profiles/' . htmlspecialchars($user['profile_photo'])
                 : 'https://ui-avatars.com/api/?name=' . urlencode($user['username'] ?? 'User') . '&background=9b4de0&color=fff&size=200';
             
-            // Debug: Output the full path for verification
             $full_path = $_SERVER['DOCUMENT_ROOT'] . '/IMprojFinal/public/uploads/profiles/' . htmlspecialchars($user['profile_photo'] ?? '');
             error_log("Full server path to profile picture: " . $full_path);
             error_log("File exists: " . (file_exists($full_path) ? 'Yes' : 'No'));
             
-            // Debug output
             error_log("Profile picture path: " . $profile_pic);
             ?>
             <div style="position: relative;">
                 <img src="<?= $profile_pic ?>" alt="Profile Picture" class="profile-picture" 
                      onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=<?= urlencode($user['username'] ?? 'User') ?>&background=9b4de0&color=fff&size=200';">
-                <!-- Debug output -->
                 <div style="position: absolute; top: 100%; left: 0; background: white; color: black; padding: 5px; font-size: 12px; display: none;">
                     Debug: <?= htmlspecialchars($profile_pic) ?>
                 </div>
@@ -557,16 +546,13 @@ include '../../includes/header.php';
         </a>
     </div>
 
-    <!-- Recent Orders -->
     <div class="recent-orders-section">
         <h2>📦 Recent Orders</h2>
 
         <?php 
-        // Debug: Check what's in recent_orders
         error_log("Recent orders count: " . $recent_orders->num_rows);
         
         if ($recent_orders && $recent_orders->num_rows > 0): 
-            // Reset pointer to beginning
             $recent_orders->data_seek(0);
         ?>
             <table class="orders-table">
@@ -582,7 +568,6 @@ include '../../includes/header.php';
                 </thead>
                 <tbody>
                     <?php while ($order = $recent_orders->fetch_assoc()): 
-                        // Debug: Log order data
                         error_log("Order data: " . print_r($order, true));
                     ?>
                         <tr>

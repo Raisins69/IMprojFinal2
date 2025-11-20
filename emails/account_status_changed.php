@@ -1,13 +1,3 @@
-<?php
-/**
- * Account Status Changed Email Template
- * 
- * Variables available:
- * - $user: Array containing user information (id, name, email, etc.)
- * - $isActivated: Boolean indicating if account was activated (true) or deactivated (false)
- * - $changeTime: Formatted date and time of the status change
- */
-?>
 <!DOCTYPE html>
 <html>
 <head>

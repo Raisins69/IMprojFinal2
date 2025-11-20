@@ -1,15 +1,12 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
-// Initialize variables
 $error = '';
 $success = '';
 $customer = null;
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-// Validate ID
 if (!$id) {
     $_SESSION['error'] = 'Invalid user ID';
     header("Location: read.php");
@@ -37,14 +34,11 @@ try {
         exit();
     }
     
-    // Process form submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
-        // Validate and sanitize input
         $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $role = in_array($_POST['role'], ['customer', 'admin']) ? $_POST['role'] : 'customer';
         
-        // Basic validation
         if (empty($username) || empty($email)) {
             throw new Exception('Username and email are required');
         }
@@ -53,19 +47,15 @@ try {
             throw new Exception('Invalid email format');
         }
         
-        // Check for duplicate email
         $checkStmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
         $checkStmt->bind_param("si", $email, $id);
-        if (!$checkStmt->execute()) {
-            throw new Exception('Database error checking for duplicate email');
-        }
+        $checkStmt->execute();
         $checkStmt->store_result();
         
         if ($checkStmt->num_rows > 0) {
             throw new Exception('Email already exists');
         }
         
-        // Update user
         $stmt = $conn->prepare("UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?");
         if ($stmt === false) {
             throw new Exception('Database prepare failed: ' . $conn->error);
@@ -85,9 +75,6 @@ try {
     $error = $e->getMessage();
     error_log('User update error: ' . $e->getMessage());
 }
-
-require_once __DIR__ . '/../../../includes/header.php';
-?>
 
 require_once __DIR__ . '/../../../includes/header.php';
 ?>
@@ -274,24 +261,19 @@ require_once __DIR__ . '/../../../includes/header.php';
             document.addEventListener('DOMContentLoaded', function() {
                 const form = document.getElementById('userForm');
                 
-                // Form submission handler
                 form.addEventListener('submit', function(e) {
-                    // The form validation will be handled by form-validation.js
-                    // This just ensures the form is properly initialized
                     if (confirm('Are you sure you want to update this user?')) {
                         return true;
                     }
                     return false;
                 });
                 
-                // Live validation on blur
                 const inputs = form.querySelectorAll('input, select, textarea');
                 inputs.forEach(input => {
                     input.addEventListener('blur', function() {
                         validateField(this);
                     });
                     
-                    // Remove error class when user starts typing
                     input.addEventListener('input', function() {
                         if (this.classList.contains('is-invalid')) {
                             this.classList.remove('is-invalid');
@@ -303,7 +285,6 @@ require_once __DIR__ . '/../../../includes/header.php';
                     });
                 });
                 
-                // Initialize validation for all fields
                 function validateForm() {
                     let isValid = true;
                     inputs.forEach(input => {
@@ -314,35 +295,29 @@ require_once __DIR__ . '/../../../includes/header.php';
                     return isValid;
                 }
                 
-                // Validate a single field
                 function validateField(field) {
                     const value = field.value.trim();
                     const errorElement = field.nextElementSibling;
                     
-                    // Skip validation for hidden fields
                     if (field.type === 'hidden') return true;
                     
-                    // Required validation
                     if (field.getAttribute('data-required') === 'true' && !value) {
                         showError(field, 'This field is required');
                         return false;
                     }
                     
-                    // Min length validation
                     const minLength = field.getAttribute('data-min-length');
                     if (minLength && value.length < parseInt(minLength)) {
                         showError(field, `Must be at least ${minLength} characters`);
                         return false;
                     }
                     
-                    // Max length validation
                     const maxLength = field.getAttribute('data-max-length');
                     if (maxLength && value.length > parseInt(maxLength)) {
                         showError(field, `Cannot exceed ${maxLength} characters`);
                         return false;
                     }
                     
-                    // Pattern validation
                     const pattern = field.getAttribute('data-pattern');
                     if (pattern && value) {
                         const regex = new RegExp(pattern);
@@ -353,7 +328,6 @@ require_once __DIR__ . '/../../../includes/header.php';
                         }
                     }
                     
-                    // Email validation (for email fields)
                     if (field.type === 'email' && value) {
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         if (!emailRegex.test(value)) {
@@ -362,7 +336,6 @@ require_once __DIR__ . '/../../../includes/header.php';
                         }
                     }
                     
-                    // If we got here, the field is valid
                     field.classList.remove('is-invalid');
                     if (errorElement && errorElement.classList.contains('error-message')) {
                         errorElement.textContent = '';
@@ -370,7 +343,6 @@ require_once __DIR__ . '/../../../includes/header.php';
                     return true;
                 }
                 
-                // Show error message
                 function showError(field, message) {
                     field.classList.add('is-invalid');
                     const errorElement = field.nextElementSibling;

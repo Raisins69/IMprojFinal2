@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
@@ -15,7 +14,6 @@ if (!isset($_GET['supplier_id']) || !is_numeric($_GET['supplier_id'])) {
 
 $supplier_id = intval($_GET['supplier_id']);
 
-// Get supplier info
 $stmt = $conn->prepare("SELECT name FROM suppliers WHERE id = ?");
 $stmt->bind_param("i", $supplier_id);
 $stmt->execute();
@@ -26,7 +24,6 @@ if (!$supplier) {
     exit();
 }
 
-// Get products that can be supplied by this supplier
 $products = $conn->query("SELECT p.* 
     FROM products p
     INNER JOIN supplier_products sp ON p.id = sp.product_id
@@ -47,13 +44,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conn->begin_transaction();
         
         try {
-            // Insert delivery record
             $stmt = $conn->prepare("INSERT INTO supplier_deliveries (supplier_id, product_id, quantity, cost, delivery_date) 
                                    VALUES (?, ?, ?, ?, ?)");
             $stmt->bind_param("iiids", $supplier_id, $product_id, $quantity, $cost, $delivery_date);
             $stmt->execute();
             
-            // Optionally update product stock (FR1.3)
             if ($update_stock) {
                 $stmt = $conn->prepare("UPDATE products SET stock = stock + ? WHERE id = ?");
                 $stmt->bind_param("ii", $quantity, $product_id);
@@ -75,8 +70,7 @@ require_once __DIR__ . '/../../../includes/header.php';
 ?>
 
 <div class="admin-container">
-    <?php
-require_once __DIR__ . '/../sidebar.php'; ?>
+    <?php require_once __DIR__ . '/../sidebar.php'; ?>
 
     <main class="admin-content">
         <h2>Add Delivery for: <?= htmlspecialchars($supplier['name']) ?></h2>
@@ -118,8 +112,4 @@ require_once __DIR__ . '/../sidebar.php'; ?>
     </main>
 </div>
 
-<?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- require_once __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

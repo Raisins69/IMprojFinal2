@@ -1,14 +1,11 @@
 <?php
-// Include config
 require_once __DIR__ . '/../../../includes/config.php';
 
-// Check if user is logged in and has the right role
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'customer')) {
     header("Location: " . (isset($_SESSION['role']) && $_SESSION['role'] === 'customer' ? '../../login.php' : '../../../login.php'));
     exit();
 }
 
-// Validate order ID
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: read.php");
     exit();
@@ -16,7 +13,6 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $order_id = intval($_GET['id']);
 
-// Get order details
 $stmt = $conn->prepare("
     SELECT o.*, c.name AS customer_name, c.contact_number, c.email, c.address
     FROM orders o
@@ -33,7 +29,6 @@ if (!$order) {
     exit();
 }
 
-// Fetch order items
 $stmt = $conn->prepare("
     SELECT oi.*, p.name AS product_name
     FROM order_items oi 

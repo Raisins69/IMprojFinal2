@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
@@ -11,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 $from = $_GET['from'] ?? date('Y-m-01');
 $to = $_GET['to'] ?? date('Y-m-t');
 
-// Validate dates
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $from) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $to)) {
     $from = date('Y-m-01');
     $to = date('Y-m-t');

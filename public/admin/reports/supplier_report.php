@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../includes/config.php';
 checkAdmin();
 
@@ -13,13 +12,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 $from = $_GET['from'] ?? date('Y-m-01');
 $to = $_GET['to'] ?? date('Y-m-t');
 
-// Validate dates
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $from) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $to)) {
     $from = date('Y-m-01');
     $to = date('Y-m-t');
 }
 
-// Enhanced supplier report with deliveries (FR3.4)
 $stmt = $conn->prepare("SELECT s.id, s.name AS supplier_name, s.contact_person, s.contact_number,
                         COUNT(sd.id) AS deliveries,
                         SUM(sd.quantity) AS total_quantity, 
@@ -34,18 +31,10 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- require_once __DIR__ . '/../../includes/header.php'; ?>
+<?php require_once __DIR__ . '/../../includes/header.php'; ?>
 
 <div class="admin-container">
-    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- require_once '../sidebar.php'; ?>
+    <?php require_once '../sidebar.php'; ?>
 
     <main class="admin-content">
         <h2>Supplier Summary Report</h2>
@@ -78,10 +67,6 @@ checkAdmin();
             </thead>
             <tbody>
                 <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- 
                 $grand_total_qty = 0;
                 $grand_total_cost = 0;
                 while($row = $result->fetch_assoc()): 
@@ -99,11 +84,7 @@ checkAdmin();
                         <a class="btn-view" href="../suppliers/deliveries.php?supplier_id=<?= intval($row['id']) ?>">View Deliveries</a>
                     </td>
                 </tr>
-                <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- endwhile; ?>
+                <?php endwhile; ?>
             </tbody>
             <tfoot>
                 <tr style="font-weight: bold; background: #7B1FA2;">
@@ -117,8 +98,4 @@ checkAdmin();
     </main>
 </div>
 
-<?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- require_once __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

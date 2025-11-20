@@ -1,9 +1,6 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../includes/config.php';
 checkAdmin();
-
-require_once __DIR__ . '/../../includes/config.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     header("Location: ../../login.php");
@@ -17,7 +14,6 @@ if (!isset($_GET['customer_id']) || !is_numeric($_GET['customer_id'])) {
 
 $user_customer_id = intval($_GET['customer_id']);
 
-// Get user info
 $stmt = $conn->prepare("SELECT username, email FROM users WHERE id = ? AND role = 'customer'");
 $stmt->bind_param("i", $user_customer_id);
 $stmt->execute();
@@ -28,7 +24,6 @@ if (!$user) {
     exit();
 }
 
-// Get customer record from customers table
 $stmt = $conn->prepare("SELECT id FROM customers WHERE email = ?");
 $stmt->bind_param("s", $user['email']);
 $stmt->execute();
@@ -38,7 +33,6 @@ $customer = $customer_result->fetch_assoc();
 if ($customer) {
     $customer_record_id = $customer['id'];
     
-    // Get purchase history (FR2.2)
     $stmt = $conn->prepare("
         SELECT o.*, 
                COUNT(oi.id) as item_count,
@@ -60,21 +54,13 @@ require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="admin-container">
-    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- require_once '../sidebar.php'; ?>
+    <?php require_once '../sidebar.php'; ?>
 
     <main class="admin-content">
         <h2>Purchase History: <?= htmlspecialchars($user['username']) ?></h2>
         <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
 
-        <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- if ($orders && $orders->num_rows > 0): ?>
+        <?php if ($orders && $orders->num_rows > 0): ?>
             <table class="styled-table">
                 <thead>
                     <tr>
@@ -88,11 +74,7 @@ checkAdmin();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- while($order = $orders->fetch_assoc()): ?>
+                    <?php while($order = $orders->fetch_assoc()): ?>
                         <tr>
                             <td><?= htmlspecialchars($order['id']) ?></td>
                             <td><?= htmlspecialchars($order['order_date']) ?></td>
@@ -104,20 +86,11 @@ checkAdmin();
                                 <a class="btn-view" href="../transactions/view.php?id=<?= intval($order['id']) ?>">👁 View</a>
                             </td>
                         </tr>
-                    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- endwhile; ?>
+                    <?php endwhile; ?>
                 </tbody>
             </table>
 
             <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
-
-            // Calculate total spent
             $stmt = $conn->prepare("SELECT SUM(total_amount) as total_spent, COUNT(*) as order_count 
                                    FROM orders WHERE customer_id = ?");
             $stmt->bind_param("i", $customer_record_id);
@@ -130,25 +103,13 @@ checkAdmin();
                 <p><strong>Total Orders:</strong> <?= $stats['order_count'] ?></p>
                 <p><strong>Total Spent:</strong> ₱<?= number_format($stats['total_spent'], 2) ?></p>
             </div>
-        <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- else: ?>
+        <?php else: ?>
             <p style="text-align: center; padding: 20px; color: #888;">This customer has no purchase history yet.</p>
-        <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- endif; ?>
+        <?php endif; ?>
 
         <br>
         <a href="read.php" class="btn-secondary">⬅ Back to Customers</a>
     </main>
 </div>
 
-<?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- require_once __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

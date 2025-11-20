@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
@@ -16,7 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $category = trim($_POST['category']);
     $expense_date = trim($_POST['expense_date']);
 
-    // Validate inputs
     if (empty($description) || $amount <= 0 || empty($expense_date)) {
         $msg = "❌ Please fill all required fields with valid data.";
     } else {
@@ -229,7 +227,6 @@ require_once __DIR__ . '/../../../includes/header.php';
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('expenseForm');
             
-            // Form submission handler
             form.addEventListener('submit', function(e) {
                 if (validateForm() && confirm('Are you sure you want to add this expense?')) {
                     return true;
@@ -238,14 +235,12 @@ require_once __DIR__ . '/../../../includes/header.php';
                 return false;
             });
             
-            // Live validation on blur for all form inputs
             const formInputs = form.querySelectorAll('input, select, textarea');
             formInputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     validateField(this);
                 });
                 
-                // Remove error class when user starts typing
                 input.addEventListener('input', function() {
                     if (this.classList.contains('is-invalid')) {
                         this.classList.remove('is-invalid');
@@ -258,7 +253,6 @@ require_once __DIR__ . '/../../../includes/header.php';
                 });
             });
             
-            // Initialize form validation
             function validateForm() {
                 let isValid = true;
                 formInputs.forEach(input => {
@@ -269,46 +263,38 @@ require_once __DIR__ . '/../../../includes/header.php';
                 return isValid;
             }
             
-            // Validate a single field
             function validateField(field) {
                 const value = field.value.trim();
                 const errorElement = field.closest('.form-group')?.querySelector('.error-message') || 
                                    field.parentElement.querySelector('.error-message');
                 
-                // Skip validation for hidden fields
                 if (field.type === 'hidden') return true;
                 
-                // Required validation
                 if (field.getAttribute('data-required') === 'true' && !value) {
                     showError(field, 'This field is required');
                     return false;
                 }
                 
-                // Skip further validation if the field is empty and not required
                 if (!value) return true;
                 
-                // Min length validation
                 const minLength = field.getAttribute('data-min-length');
                 if (minLength && value.length < parseInt(minLength)) {
                     showError(field, `Must be at least ${minLength} characters`);
                     return false;
                 }
                 
-                // Max length validation
                 const maxLength = field.getAttribute('data-max-length');
                 if (maxLength && value.length > parseInt(maxLength)) {
                     showError(field, `Cannot exceed ${maxLength} characters`);
                     return false;
                 }
                 
-                // Min value validation
                 const min = field.getAttribute('min') || field.getAttribute('data-min');
                 if (min !== null && parseFloat(value) < parseFloat(min)) {
                     showError(field, `Value must be at least ${min}`);
                     return false;
                 }
                 
-                // Date validation
                 if (field.type === 'date') {
                     const selectedDate = new Date(value);
                     const today = new Date();
@@ -320,7 +306,6 @@ require_once __DIR__ . '/../../../includes/header.php';
                     }
                 }
                 
-                // If we got here, the field is valid
                 field.classList.remove('is-invalid');
                 if (errorElement) {
                     errorElement.textContent = '';
@@ -328,7 +313,6 @@ require_once __DIR__ . '/../../../includes/header.php';
                 return true;
             }
             
-            // Show error message
             function showError(field, message) {
                 field.classList.add('is-invalid');
                 const errorElement = field.closest('.form-group')?.querySelector('.error-message') || 

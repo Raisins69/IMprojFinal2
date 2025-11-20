@@ -1,9 +1,7 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
-// Initialize variables
 $error = '';
 $formData = [
     'name' => '',
@@ -13,10 +11,8 @@ $formData = [
     'address' => ''
 ];
 
-// Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     try {
-        // Sanitize and validate input
         $formData = [
             'name' => filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING),
             'contact_person' => filter_input(INPUT_POST, 'contact_person', FILTER_SANITIZE_STRING),
@@ -25,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             'address' => filter_input(INPUT_POST, 'address', FILTER_SANITIZE_STRING)
         ];
 
-        // Basic validation
         if (empty($formData['name']) || empty($formData['contact_person'])) {
             throw new Exception('Name and Contact Person are required');
         }
@@ -34,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             throw new Exception('Please enter a valid email address');
         }
 
-        // Check for duplicate supplier name or email
         $checkStmt = $conn->prepare("SELECT id FROM suppliers WHERE name = ? OR email = ?");
         $checkStmt->bind_param("ss", $formData['name'], $formData['email']);
         if (!$checkStmt->execute()) {
@@ -46,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             throw new Exception('A supplier with this name or email already exists');
         }
 
-        // Insert new supplier
         $stmt = $conn->prepare("INSERT INTO suppliers (name, contact_person, contact_number, email, address) VALUES (?, ?, ?, ?, ?)");
         if ($stmt === false) {
             throw new Exception('Database prepare failed: ' . $conn->error);
@@ -64,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             throw new Exception('Failed to add supplier: ' . $stmt->error);
         }
 
-        // Redirect with success message
         $_SESSION['success'] = 'Supplier added successfully';
         header("Location: read.php");
         exit();
@@ -79,11 +71,7 @@ require_once __DIR__ . '/../../../includes/header.php';
 ?>
 
 <div class="admin-container">
-    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../../includes/config.php';
-checkAdmin();
- require_once '../sidebar.php'; ?>
+    <?php require_once '../sidebar.php'; ?>
 
     <main class="admin-content">
         <h2>Add New Supplier</h2>

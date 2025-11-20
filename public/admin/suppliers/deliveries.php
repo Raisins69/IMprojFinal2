@@ -1,9 +1,7 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
-// Initialize variables
 $error = '';
 $success = '';
 $supplier_id = filter_input(INPUT_GET, 'supplier_id', FILTER_VALIDATE_INT);
@@ -15,12 +13,10 @@ $page = max(1, filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1);
 $offset = ($page - 1) * $per_page;
 
 try {
-    // Validate supplier ID
     if (!$supplier_id) {
         throw new Exception('Invalid supplier ID');
     }
 
-    // Get supplier details with prepared statement
     $stmt = $conn->prepare("SELECT id, name, contact_person, email FROM suppliers WHERE id = ?");
     if ($stmt === false) {
         throw new Exception('Database prepare failed: ' . $conn->error);
@@ -38,9 +34,7 @@ try {
         throw new Exception('Supplier not found');
     }
 
-    // Handle delivery status update
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
-        // Verify CSRF token
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
             throw new Exception('Invalid CSRF token');
         }
@@ -52,11 +46,9 @@ try {
             throw new Exception('Invalid delivery status update request');
         }
         
-        // Start transaction
         $conn->begin_transaction();
         
         try {
-            // Update delivery status - simplified to just update the delivery date
             $updateStmt = $conn->prepare("
                 UPDATE supplier_deliveries 
                 SET delivery_date = IF(? = 'Received' AND delivery_date > NOW(), NOW(), delivery_date)
@@ -77,7 +69,6 @@ try {
                 throw new Exception('No delivery found with the specified ID');
             }
             
-            // Commit transaction
             $conn->commit();
             
             $_SESSION['success'] = 'Delivery status updated successfully';
@@ -85,23 +76,17 @@ try {
             exit();
             
         } catch (Exception $e) {
-            // Rollback on error
             $conn->rollback();
             throw $e;
         }
     }
 
-    // Get all deliveries for this supplier with pagination
-    // Pagination variables are already initialized at the top
-    
-    // Get total count for pagination
     $countStmt = $conn->prepare("SELECT COUNT(*) as total FROM supplier_deliveries WHERE supplier_id = ?");
     $countStmt->bind_param("i", $supplier_id);
     $countStmt->execute();
     $total_deliveries = $countStmt->get_result()->fetch_assoc()['total'];
     $total_pages = ceil($total_deliveries / $per_page);
     
-    // Get deliveries with pagination
     $stmt = $conn->prepare("
         SELECT d.*, p.name as product_name
         FROM supplier_deliveries d

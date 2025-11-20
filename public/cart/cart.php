@@ -2,7 +2,6 @@
 session_start();
 require_once __DIR__ . '/../../includes/config.php';
 
-// Check if user is logged in as customer
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
     $_SESSION['error'] = 'Please login to view your cart';
     header("Location: " . BASE_URL . "/login.php");
@@ -11,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 
 $customer_id = $_SESSION['user_id'];
 
-// Handle remove from cart action
 if (isset($_GET['action']) && $_GET['action'] === 'remove' && isset($_GET['id'])) {
     $cart_id = intval($_GET['id']);
     $stmt = $conn->prepare("DELETE FROM cart WHERE id = ? AND customer_id = ?");
@@ -25,7 +23,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'remove' && isset($_GET['id'])
     exit();
 }
 
-// Fetch cart items
 $stmt = $conn->prepare("SELECT c.id, c.product_id, c.quantity, 
                                p.name as product_name, p.price, p.image, 
                                p.brand, p.stock
@@ -38,17 +35,14 @@ $cart_items_result = $stmt->get_result();
 $cart_items = [];
 $grandTotal = 0;
 
-// Process cart items
 while ($item = $cart_items_result->fetch_assoc()) {
     $item['total'] = $item['quantity'] * $item['price'];
     $grandTotal += $item['total'];
     $cart_items[] = $item;
 }
 
-// Include header after setting all variables
 include '../../includes/header.php';
 
-// Display success/error messages
 if (isset($_SESSION['success'])) {
     echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
     unset($_SESSION['success']);

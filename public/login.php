@@ -4,7 +4,6 @@ require_once __DIR__ . '/../includes/config.php';
 $message = "";
 $message_type = "";
 
-// Check if already logged in
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] === 'admin') {
         header("Location: admin/dashboard.php");
@@ -14,7 +13,6 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Handle registration success message
 if (isset($_GET['registered']) && $_GET['registered'] === 'true') {
     $message = "✅ Registration successful! Please login.";
     $message_type = "success";
@@ -36,19 +34,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
             
-            // Check if account is active
             $is_active = isset($user['is_active']) ? $user['is_active'] : 1;
             if (!$is_active) {
                 $message = "❌ Your account has been deactivated. Please contact admin.";
                 $message_type = "error";
             } elseif (password_verify($password, $user['password'])) {
-                // Set session variables
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
 
-                // Redirect based on role
                 if ($user['role'] === 'admin') {
                     header("Location: admin/dashboard.php");
                 } else {
@@ -90,7 +85,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             position: relative;
         }
 
-        /* Animated Background */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -156,7 +150,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             pointer-events: none;
         }
 
-        /* Main Container */
         .login-container {
             position: relative;
             z-index: 2;
@@ -165,7 +158,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             min-height: 100vh;
         }
 
-        /* Left Section - Login Form */
         .left-section {
             flex: 1;
             display: flex;
@@ -429,7 +421,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-decoration: underline;
         }
 
-        /* Right Section - Welcome */
         .right-section {
             flex: 1;
             display: flex;
@@ -503,7 +494,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             line-height: 1.5;
         }
 
-        /* Responsive */
         @media (max-width: 1024px) {
             .login-container {
                 flex-direction: column-reverse;
@@ -542,7 +532,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="grid-overlay"></div>
 
     <div class="login-container">
-        <!-- Left Section - Form -->
         <div class="left-section">
             <div class="form-wrapper">
                 <div class="form-content">
@@ -611,7 +600,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
 
-        <!-- Right Section - Welcome -->
         <div class="right-section">
             <div class="welcome-content">
                 <div class="welcome-logo">🛍️</div>

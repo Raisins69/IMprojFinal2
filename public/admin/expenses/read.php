@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
@@ -8,7 +7,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit();
 }
 
-// Handle search and filter
 $search = $_GET['search'] ?? '';
 $category = $_GET['category'] ?? '';
 $from_date = $_GET['from_date'] ?? '';

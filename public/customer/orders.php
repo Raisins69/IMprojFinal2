@@ -8,14 +8,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 
 $customer_id = $_SESSION['user_id'];
 
-// Get customer record ID from users table
 $stmt = $conn->prepare("SELECT id FROM customers WHERE email = (SELECT email FROM users WHERE id = ?)");
 $stmt->bind_param("i", $customer_id);
 $stmt->execute();
 $customer_result = $stmt->get_result();
 $customer_record = $customer_result->fetch_assoc();
 
-// Get filter
 $filter = $_GET['filter'] ?? 'all';
 
 if (!$customer_record) {
@@ -25,7 +23,6 @@ if (!$customer_record) {
 } else {
     $customer_record_id = $customer_record['id'];
     
-    // Build query based on filter
     $query = "SELECT o.*, COUNT(oi.id) as item_count 
               FROM orders o 
               LEFT JOIN order_items oi ON o.id = oi.order_id
@@ -49,7 +46,6 @@ if (!$customer_record) {
         $orders[] = $row;
     }
     
-    // Get stats
     $stmt = $conn->prepare("SELECT COUNT(*) as count, SUM(total_amount) as total FROM orders WHERE customer_id = ?");
     $stmt->bind_param("i", $customer_record_id);
     $stmt->execute();
@@ -452,7 +448,6 @@ include '../../includes/header.php';
         <p>Track and manage your order history</p>
     </div>
 
-    <!-- Stats Row -->
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-icon">📊</div>
@@ -473,7 +468,6 @@ include '../../includes/header.php';
         </div>
     </div>
 
-    <!-- Filters -->
     <div class="filters-section">
         <div class="filter-buttons">
             <a href="?filter=all" class="filter-btn <?= $filter === 'all' ? 'active' : '' ?>">
@@ -491,7 +485,6 @@ include '../../includes/header.php';
         </a>
     </div>
 
-    <!-- Orders List -->
     <?php if (count($orders) > 0): ?>
         <div class="orders-grid">
             <?php foreach ($orders as $order): ?>
@@ -562,7 +555,6 @@ include '../../includes/header.php';
     <?php endif; ?>
 </div>
 
-<!-- Cancel Order Modal -->
 <div id="cancelModal" class="modal">
     <div class="modal-content">
         <h3>Cancel Order</h3>
@@ -586,7 +578,6 @@ include '../../includes/header.php';
 </div>
 
 <script>
-// Show/hide cancel modal
 function showCancelModal(orderId) {
     document.getElementById('cancelOrderId').value = orderId;
     document.getElementById('cancelModal').style.display = 'flex';
@@ -596,7 +587,6 @@ function hideCancelModal() {
     document.getElementById('cancelModal').style.display = 'none';
 }
 
-// Close modal when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('cancelModal');
     if (event.target === modal) {
@@ -604,7 +594,6 @@ window.onclick = function(event) {
     }
 }
 
-// Show success/error messages
 document.addEventListener('DOMContentLoaded', function() {
     <?php if (isset($_SESSION['success'])): ?>
         alert('<?php echo addslashes($_SESSION['success']); ?>');

@@ -1,15 +1,12 @@
 <?php
-// Enable error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once __DIR__ . '/../includes/config.php';
 
-// Log session and POST data for debugging
 error_log('Session data: ' . print_r($_SESSION, true));
 error_log('POST data: ' . print_r($_POST, true));
 
-// Get product ID
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: shop.php");
     exit();
@@ -17,7 +14,6 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $product_id = intval($_GET['id']);
 
-// Fetch product details
 $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
 $stmt->bind_param("i", $product_id);
 $stmt->execute();
@@ -28,11 +24,9 @@ if (!$product) {
     exit();
 }
 
-// Handle comment submission
 $message = "";
 $message_type = "";
 
-// Check if product_reviews table exists
 $table_check = $conn->query("SHOW TABLES LIKE 'product_reviews'");
 if ($table_check->num_rows === 0) {
     error_log("ERROR: product_reviews table does not exist!");
@@ -40,15 +34,12 @@ if ($table_check->num_rows === 0) {
     $message_type = "error";
 }
 
-// Debug: Log script start
 error_log("\n=== NEW REQUEST ===");
 error_log("REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD']);
 error_log("GET data: " . print_r($_GET, true));
 error_log("POST data: " . print_r($_POST, true));
 error_log("SESSION data: " . print_r($_SESSION, true));
 
-// Handle form submission
-// Debug: Log form submission
 error_log("Form submitted with data: " . print_r($_POST, true));
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && (isset($_POST['submit_review']) || isset($_POST['rating']))) {
@@ -78,22 +69,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && (isset($_POST['submit_review']) || i
             $message_type = "error";
         } else {
         
-            // Check for profanity
             require_once __DIR__ . '/../includes/ProfanityFilter.php';
             
             if (ProfanityFilter::hasProfanity($comment)) {
                 $message = "❌ Your comment contains inappropriate language. Please revise your comment.";
                 $message_type = "error";
-                // Log the attempt
                 error_log("Profanity detected in comment by user ID: $user_id");
-                // Show the form again with the original comment (not filtered)
                 $_POST['comment'] = $comment;
             } else {
-                // Only proceed with saving if there's no profanity
                 $comment = ProfanityFilter::filter($comment);
                 
                 error_log("After profanity filter - Comment: '$comment'");
-                // Database operations
                 $sql = "INSERT INTO product_reviews (product_id, user_id, comment, rating) VALUES (?, ?, ?, ?)";
                 error_log("Preparing SQL: $sql");
                 
@@ -105,7 +91,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && (isset($_POST['submit_review']) || i
                         $insert_id = $stmt->insert_id;
                         error_log("Comment inserted successfully. Insert ID: $insert_id");
                         
-                        // Clear form and redirect to prevent resubmission
                         $_POST = array();
                         $redirect_url = $_SERVER['REQUEST_URI'];
                         error_log("Redirecting to: $redirect_url");
@@ -124,12 +109,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && (isset($_POST['submit_review']) || i
                     $message = "❌ Error: " . $error;
                     $message_type = "error";
                 }
-            } // Close else block for profanity check
-        } // Close else block for validation
-    } // Close else block for user not logged in
-} // Close if isset(submit_review) and POST request
+            } 
+        } 
+    } 
+} 
 
-// Handle comment update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_review'])) {
     if (isset($_SESSION['user_id'])) {
         $review_id = intval($_POST['review_id']);
@@ -137,7 +121,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_review'])) {
         $rating = intval($_POST['rating']);
         $user_id = $_SESSION['user_id'];
         
-        // Profanity filter
         $bad_words = ['fuck', 'shit', 'damn', 'bitch', 'ass', 'hell', 'crap', 'bastard', 'puta', 'gago', 'tanga', 'bobo'];
         foreach ($bad_words as $word) {
             $pattern = '/\b' . preg_quote($word, '/') . '\b/i';
@@ -155,7 +138,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_review'])) {
     }
 }
 
-// Handle comment deletion
 if (isset($_GET['delete_review']) && isset($_SESSION['user_id'])) {
     $review_id = intval($_GET['delete_review']);
     $user_id = $_SESSION['user_id'];
@@ -168,7 +150,6 @@ if (isset($_GET['delete_review']) && isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Fetch all reviews for this product
 $reviews_query = $conn->prepare("
     SELECT pr.*, u.username, u.profile_photo 
     FROM product_reviews pr 
@@ -180,7 +161,6 @@ $reviews_query->bind_param("i", $product_id);
 $reviews_query->execute();
 $reviews = $reviews_query->get_result();
 
-// Calculate average rating
 $avg_query = $conn->prepare("SELECT AVG(rating) as avg_rating, COUNT(*) as total_reviews FROM product_reviews WHERE product_id = ?");
 $avg_query->bind_param("i", $product_id);
 $avg_query->execute();
@@ -382,7 +362,6 @@ include '../includes/header.php';
                     </button>
                 </form>
                 <script>
-                // Add form submission handler
                 document.querySelector('.add-to-cart-form').addEventListener('submit', function(e) {
                     e.preventDefault();
                     const form = this;
@@ -397,20 +376,17 @@ include '../includes/header.php';
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Show success message
                             const message = document.createElement('div');
                             message.className = 'alert alert-success';
                             message.textContent = data.message || 'Product added to cart!';
                             form.parentNode.insertBefore(message, form.nextSibling);
                             setTimeout(() => message.remove(), 3000);
                             
-                            // Update cart count if needed
                             const cartCount = document.querySelector('.cart-count');
                             if (cartCount) {
                                 cartCount.textContent = parseInt(cartCount.textContent || '0') + 1;
                             }
                             
-                            // Redirect if needed
                             if (data.redirect) {
                                 window.location.href = data.redirect;
                             }
@@ -443,7 +419,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Reviews Section -->
     <div class="reviews-section">
         <h2>Customer Reviews & Comments</h2>
 
@@ -561,7 +536,6 @@ include '../includes/header.php';
 </div>
 
 <script>
-// Prevent form submission if quantity is invalid
 function validateQuantity() {
     const quantityInput = document.getElementById('quantity');
     const quantity = parseInt(quantityInput.value);
@@ -579,14 +553,12 @@ function validateQuantity() {
     return true;
 }
 
-// Add event listeners for quantity validation
 document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('quantity');
     if (quantityInput) {
         quantityInput.addEventListener('change', validateQuantity);
         quantityInput.addEventListener('input', validateQuantity);
         
-        // Also validate on form submission
         const form = quantityInput.closest('form');
         if (form) {
             form.addEventListener('submit', function(e) {
@@ -600,16 +572,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// List of bad words for client-side validation (keep in sync with server-side)
 const profanityWords = [
-    // English profanity
     'fuck', 'shit', 'asshole', 'bitch', 'cunt', 'dick', 'pussy', 'cock', 'whore', 'slut',
     'bastard', 'dickhead', 'piss', 'crap', 'damn', 'fag', 'faggot', 'retard', 'nigger',
     'nigga', 'chink', 'spic', 'kike', 'coon', 'twat', 'wanker', 'bollocks', 'arsehole',
     'bloody', 'bugger', 'cow', 'crikey', 'cunt', 'minge', 'prick', 'pissed', 'pissed off',
     'piss off', 'shitty', 'shite', 'twat', 'wank', 'wanker', 'whore',
     
-    // Filipino/Tagalog profanity
     'puta', 'putang ina', 'putangina', 'puta ina', 'gago', 'gaga', 'bobo', 'tanga', 'ulol',
     'bobo', 'bubu', 'bubuwit', 'burat', 'puking ina', 'pukina', 'pota', 'potang ina',
     'potangina', 'tanga', 'tarantado', 'ulol', 'unggoy', 'yawa', 'yawwa', 'leche', 'lintik',
@@ -618,9 +587,6 @@ const profanityWords = [
     'ulol', 'ungas', 'ungas', 'ungas ka', 'yawa', 'yawa ka'
 ];
 
-/**
- * Check if text contains profanity
- */
 function hasProfanity(text) {
     if (!text) return false;
     
@@ -631,13 +597,11 @@ function hasProfanity(text) {
     });
 }
 
-// Debug form submission
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('reviewForm');
     if (form) {
         console.log('Review form found');
         
-        // Debug form submission
         form.addEventListener('submit', function(e) {
             console.log('Form submit event triggered');
             console.log('Form data:', {
@@ -645,7 +609,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 comment: document.getElementById('comment')?.value
             });
             
-            // Let the form submit normally
             return true;
         });
     } else {
@@ -657,7 +620,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         console.log('Review form found');
         
-        // Debug form submission
         form.addEventListener('submit', function(e) {
             console.log('Form submit event triggered');
             console.log('Form data:', {
@@ -665,7 +627,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 comment: document.getElementById('comment')?.value
             });
             
-            // Let the form submit normally
             return true;
         });
     } else {
@@ -673,27 +634,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Initialize form validation with custom submit handler
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('reviewForm');
     if (form) {
         form.addEventListener('submit', function(e) {
-            // Manually validate required fields
             const rating = document.getElementById('rating');
             const comment = document.getElementById('comment');
             let isValid = true;
 
-            // Clear previous errors
             document.querySelectorAll('.error-message').forEach(el => el.remove());
             document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
 
-            // Validate rating
             if (!rating.value) {
                 showError(rating, 'Please select a rating');
                 isValid = false;
             }
 
-            // Validate comment
             if (!comment.value.trim()) {
                 showError(comment, 'Please enter a comment');
                 isValid = false;
@@ -704,11 +660,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // If all valid, the form will submit normally
             return true;
         });
         
-        // Add input event listeners to clear error when user starts typing/selecting
         const rating = document.getElementById('rating');
         const comment = document.getElementById('comment');
         
@@ -735,16 +689,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showError(field, message) {
-    // Remove any existing error message
     const existingError = field.parentNode.querySelector('.error-message');
     if (existingError) {
         existingError.remove();
     }
     
-    // Add error class to field
     field.classList.add('error');
     
-    // Create and append error message
     const errorElement = document.createElement('div');
     errorElement.className = 'error-message';
     errorElement.style.color = '#ef4444';

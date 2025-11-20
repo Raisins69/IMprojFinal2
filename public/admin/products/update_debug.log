@@ -744,3 +744,319 @@
                 supplier_id = ?
                 WHERE id = ?
 [2025-11-19 13:21:01] [update.php:252] ✅ Product updated successfully!
+[2025-11-20 02:21:23] Script started
+[2025-11-20 02:21:23] [update.php:22] Session data: Array
+(
+    [last_regeneration] => 1763601663
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 02:21:40] Script started
+[2025-11-20 02:21:40] [update.php:22] Session data: Array
+(
+    [last_regeneration] => 1763601663
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 02:21:40] [update.php:68] === FORM SUBMITTED ===
+[2025-11-20 02:21:40] [update.php:69] POST data: Array
+(
+    [debug] => 1
+    [name] => TestAgain
+    [brand] => Nice
+    [category] => T-shirt
+    [size] => 20
+    [price] => 10000.00
+    [stock] => 30
+    [condition_type] => Like New
+    [supplier_id] => 1
+)
+
+[2025-11-20 02:21:40] [update.php:70] FILES data: Array
+(
+    [image] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-11-20 02:21:40] [update.php:73] Current directory: C:\xampp\htdocs\IMprojFinal\public\admin\products
+[2025-11-20 02:21:40] [update.php:74] Upload directory exists: Yes
+[2025-11-20 02:21:40] [update.php:75] Upload directory writable: Yes
+[2025-11-20 02:21:40] [update.php:176] Preparing query: UPDATE products SET 
+                name = ?,
+                brand = ?,
+                category = ?,
+                size = ?,
+                price = ?,
+                stock = ?,
+                condition_type = ?,
+                image = ?,
+                supplier_id = ?
+                WHERE id = ?
+[2025-11-20 02:21:40] [update.php:252] ✅ Product updated successfully!
+[2025-11-20 04:08:12] Script started
+[2025-11-20 04:08:12] [update.php:20] Session data: Array
+(
+    [last_regeneration] => 1763601709
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 04:08:36] Script started
+[2025-11-20 04:08:36] [update.php:20] Session data: Array
+(
+    [last_regeneration] => 1763601709
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 04:08:36] [update.php:61] === FORM SUBMITTED ===
+[2025-11-20 04:08:36] [update.php:62] POST data: Array
+(
+    [debug] => 1
+    [name] => Cardigan
+    [brand] => UNIQLO
+    [category] => Jacket
+    [size] => Medium
+    [price] => 1010.00
+    [stock] => 20
+    [condition_type] => Good
+    [supplier_id] => 1
+)
+
+[2025-11-20 04:08:36] [update.php:63] FILES data: Array
+(
+    [image] => Array
+        (
+            [name] => gap-cap2.jpg
+            [full_path] => gap-cap2.jpg
+            [type] => image/jpeg
+            [tmp_name] => C:\xampp\tmp\phpDBAF.tmp
+            [error] => 0
+            [size] => 110798
+        )
+
+)
+
+[2025-11-20 04:08:36] [update.php:65] Current directory: C:\xampp\htdocs\IMprojFinal\public\admin\products
+[2025-11-20 04:08:36] [update.php:66] Upload directory exists: Yes
+[2025-11-20 04:08:36] [update.php:67] Upload directory writable: Yes
+[2025-11-20 04:08:36] [update.php:145] Preparing query: UPDATE products SET 
+                name = ?,
+                brand = ?,
+                category = ?,
+                size = ?,
+                price = ?,
+                stock = ?,
+                condition_type = ?,
+                image = ?,
+                supplier_id = ?
+                WHERE id = ?
+[2025-11-20 04:08:36] [update.php:211] ✅ Product updated successfully!
+[2025-11-20 04:09:00] Script started
+[2025-11-20 04:09:00] [update.php:20] Session data: Array
+(
+    [last_regeneration] => 1763601709
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 04:09:05] Script started
+[2025-11-20 04:09:05] [update.php:20] Session data: Array
+(
+    [last_regeneration] => 1763601709
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 04:09:05] [update.php:61] === FORM SUBMITTED ===
+[2025-11-20 04:09:05] [update.php:62] POST data: Array
+(
+    [debug] => 1
+    [name] => Cardigan
+    [brand] => UNIQLO
+    [category] => Jacket
+    [size] => Medium
+    [price] => 1010.00
+    [stock] => 20
+    [condition_type] => Good
+    [remove_image] => on
+    [supplier_id] => 1
+)
+
+[2025-11-20 04:09:05] [update.php:63] FILES data: Array
+(
+    [image] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-11-20 04:09:05] [update.php:65] Current directory: C:\xampp\htdocs\IMprojFinal\public\admin\products
+[2025-11-20 04:09:05] [update.php:66] Upload directory exists: Yes
+[2025-11-20 04:09:05] [update.php:67] Upload directory writable: Yes
+[2025-11-20 04:09:05] [update.php:145] Preparing query: UPDATE products SET 
+                name = ?,
+                brand = ?,
+                category = ?,
+                size = ?,
+                price = ?,
+                stock = ?,
+                condition_type = ?,
+                image = ?,
+                supplier_id = ?
+                WHERE id = ?
+[2025-11-20 04:09:05] [update.php:211] ✅ Product updated successfully!
+[2025-11-20 04:09:09] Script started
+[2025-11-20 04:09:09] [update.php:20] Session data: Array
+(
+    [last_regeneration] => 1763601709
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 04:09:22] Script started
+[2025-11-20 04:09:22] [update.php:20] Session data: Array
+(
+    [last_regeneration] => 1763601709
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 04:09:22] [update.php:61] === FORM SUBMITTED ===
+[2025-11-20 04:09:22] [update.php:62] POST data: Array
+(
+    [debug] => 1
+    [name] => Cardigan
+    [brand] => UNIQLO
+    [category] => Jacket
+    [size] => Medium
+    [price] => 1010.00
+    [stock] => 20
+    [condition_type] => Good
+    [supplier_id] => 1
+)
+
+[2025-11-20 04:09:22] [update.php:63] FILES data: Array
+(
+    [image] => Array
+        (
+            [name] => cardigan-white.png
+            [full_path] => cardigan-white.png
+            [type] => image/png
+            [tmp_name] => C:\xampp\tmp\php90E7.tmp
+            [error] => 0
+            [size] => 112815
+        )
+
+)
+
+[2025-11-20 04:09:22] [update.php:65] Current directory: C:\xampp\htdocs\IMprojFinal\public\admin\products
+[2025-11-20 04:09:22] [update.php:66] Upload directory exists: Yes
+[2025-11-20 04:09:22] [update.php:67] Upload directory writable: Yes
+[2025-11-20 04:09:22] [update.php:145] Preparing query: UPDATE products SET 
+                name = ?,
+                brand = ?,
+                category = ?,
+                size = ?,
+                price = ?,
+                stock = ?,
+                condition_type = ?,
+                image = ?,
+                supplier_id = ?
+                WHERE id = ?
+[2025-11-20 04:09:22] [update.php:211] ✅ Product updated successfully!
+[2025-11-20 04:14:48] Script started
+[2025-11-20 04:14:48] [update.php:20] Session data: Array
+(
+    [last_regeneration] => 1763608460
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 04:15:01] Script started
+[2025-11-20 04:15:01] [update.php:20] Session data: Array
+(
+    [last_regeneration] => 1763608460
+    [user_id] => 1
+    [username] => admin
+    [email] => admin@urbanthrift.com
+    [role] => admin
+)
+
+[2025-11-20 04:15:01] [update.php:61] === FORM SUBMITTED ===
+[2025-11-20 04:15:01] [update.php:62] POST data: Array
+(
+    [debug] => 1
+    [name] => Cardigan
+    [brand] => UNIQLO
+    [category] => Jacket
+    [size] => Medium
+    [price] => 460
+    [stock] => 20
+    [condition_type] => Good
+    [supplier_id] => 1
+)
+
+[2025-11-20 04:15:01] [update.php:63] FILES data: Array
+(
+    [image] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-11-20 04:15:01] [update.php:65] Current directory: C:\xampp\htdocs\IMprojFinal\public\admin\products
+[2025-11-20 04:15:01] [update.php:66] Upload directory exists: Yes
+[2025-11-20 04:15:01] [update.php:67] Upload directory writable: Yes
+[2025-11-20 04:15:01] [update.php:145] Preparing query: UPDATE products SET 
+                name = ?,
+                brand = ?,
+                category = ?,
+                size = ?,
+                price = ?,
+                stock = ?,
+                condition_type = ?,
+                image = ?,
+                supplier_id = ?
+                WHERE id = ?
+[2025-11-20 04:15:01] [update.php:211] ✅ Product updated successfully!

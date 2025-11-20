@@ -1,6 +1,5 @@
 <?php
 
-// Include PHPMailer classes manually if autoloader is not available
 if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
     require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
     require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
@@ -16,7 +15,6 @@ class EmailService {
     private $fromName;
     
     public function __construct() {
-        // Use constants from config if available, otherwise use defaults
         $this->smtpHost = defined('MAIL_HOST') ? MAIL_HOST : 'sandbox.smtp.mailtrap.io';
         $this->smtpPort = defined('MAIL_PORT') ? MAIL_PORT : 2525;
         $this->smtpUsername = defined('MAIL_USERNAME') ? MAIL_USERNAME : '';
@@ -24,7 +22,6 @@ class EmailService {
         $this->fromEmail = defined('MAIL_FROM_EMAIL') ? MAIL_FROM_EMAIL : 'noreply@urbanthrift.com';
         $this->fromName = defined('MAIL_FROM_NAME') ? MAIL_FROM_NAME : 'UrbanThrift';
         
-        // Override with environment variables if set
         if (getenv('MAILTRAP_USERNAME')) {
             $this->smtpUsername = getenv('MAILTRAP_USERNAME');
         }
@@ -38,7 +35,6 @@ class EmailService {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         
         try {
-            // Server settings
             $mail->isSMTP();
             $mail->Host = $this->smtpHost;
             $mail->SMTPAuth = true;
@@ -48,7 +44,6 @@ class EmailService {
             $mail->Port = $this->smtpPort;
             $mail->CharSet = 'UTF-8';
             
-            // Sender info
             $mail->setFrom($this->fromEmail, $this->fromName);
             
             return $mail;
@@ -69,14 +64,11 @@ class EmailService {
         try {
             $mail = $this->initMailer();
             
-            // Recipient
             $mail->addAddress($user['email'], $user['name']);
             
-            // Content
             $mail->isHTML(true);
             $mail->Subject = 'Order Confirmation - #' . $order['order_number'];
             
-            // Render email template
             $mail->Body = $this->renderTemplate('order_confirmation', [
                 'user' => $user,
                 'order' => $order,
@@ -90,18 +82,7 @@ class EmailService {
             return false;
         }
     }
-
-    /**
-     * Send order status update email
-     * 
-     * @param array $order Order data with required keys: order_number, total_amount
-     * @param array $user User data with required keys: email, name
-     * @param string $status New order status
-     * @return bool True if email was sent successfully, false otherwise
-     * @throws InvalidArgumentException If required parameters are missing
-     */
     public function sendOrderStatusUpdate($order, $user, $status) {
-        // Validate required parameters
         if (empty($order['order_number']) || !isset($order['total_amount'])) {
             throw new InvalidArgumentException('Order must contain order_number and total_amount');
         }
@@ -113,10 +94,8 @@ class EmailService {
         try {
             $mail = $this->initMailer();
             
-            // Recipient
             $mail->addAddress($user['email'], $user['name']);
             
-            // Standardize order data
             $orderData = array_merge([
                 'order_number' => '',
                 'total_amount' => 0,
@@ -124,11 +103,9 @@ class EmailService {
                 'tracking_number' => $order['tracking_number'] ?? null
             ], $order);
             
-            // Content
             $mail->isHTML(true);
             $mail->Subject = 'Order #' . $orderData['order_number'] . ' - Status Update';
             
-            // Render email template
             $mail->Body = $this->renderTemplate('order_status_update', [
                 'user' => [
                     'name' => $user['name'],
@@ -154,17 +131,7 @@ class EmailService {
         }
     }
 
-    /**
-     * Send order shipped notification
-     * 
-     * @param array $order Order data with required keys: order_number, total_amount
-     * @param array $user User data with required keys: email, name
-     * @param string|null $trackingInfo Optional tracking information
-     * @return bool True if email was sent successfully, false otherwise
-     * @throws InvalidArgumentException If required parameters are missing
-     */
     public function sendShippedNotification($order, $user, $trackingInfo = null) {
-        // Validate required parameters
         if (empty($order['order_number']) || !isset($order['total_amount'])) {
             throw new InvalidArgumentException('Order must contain order_number and total_amount');
         }
@@ -176,10 +143,8 @@ class EmailService {
         try {
             $mail = $this->initMailer();
             
-            // Recipient
             $mail->addAddress($user['email'], $user['name']);
             
-            // Standardize order data
             $orderData = array_merge([
                 'order_number' => '',
                 'total_amount' => 0,
@@ -187,16 +152,13 @@ class EmailService {
                 'tracking_number' => $trackingInfo
             ], $order);
             
-            // If tracking info was passed separately, ensure it's in the order data
             if ($trackingInfo !== null) {
                 $orderData['tracking_number'] = $trackingInfo;
             }
             
-            // Content
             $mail->isHTML(true);
             $mail->Subject = 'Your Order #' . $orderData['order_number'] . ' Has Shipped';
             
-            // Render email template
             $mail->Body = $this->renderTemplate('order_shipped', [
                 'user' => [
                     'name' => $user['name'],
@@ -225,14 +187,11 @@ class EmailService {
         try {
             $mail = $this->initMailer();
             
-            // Recipient
             $mail->addAddress($user['email'], $user['name']);
             
-            // Content
             $mail->isHTML(true);
             $mail->Subject = 'Your Profile Has Been Updated';
             
-            // Render email template
             $mail->Body = $this->renderTemplate('profile_updated', [
                 'user' => $user,
                 'updateTime' => date('F j, Y \a\t g:i a')
@@ -251,17 +210,14 @@ class EmailService {
             error_log("Initializing mailer for account status notification to: " . $user['email']);
             $mail = $this->initMailer();
             
-            // Recipient
             $mail->addAddress($user['email'], $user['name']);
             
-            // Content
             $mail->isHTML(true);
             $subject = $isActivated ? 'Your Account Has Been Reactivated' : 'Your Account Has Been Deactivated';
             $mail->Subject = $subject;
             
             error_log("Rendering email template for: " . $subject);
             
-            // Render email template
             $templateVars = [
                 'user' => $user,
                 'isActivated' => $isActivated,

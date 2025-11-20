@@ -1,12 +1,10 @@
 <?php
 include __DIR__ . '/../../../includes/config.php';
 
-// Check admin access
 checkAdmin();
 
 include '../../../includes/header.php';
 
-// Handle search and filter (FR1.4)
 $search = $_GET['search'] ?? '';
 $category = $_GET['category'] ?? '';
 $size = $_GET['size'] ?? '';

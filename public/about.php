@@ -17,7 +17,6 @@ include '../includes/header.php';
             padding: 2rem;
         }
 
-        /* Hero Section */
         .about-hero {
             text-align: center;
             padding: 5rem 2rem;
@@ -43,7 +42,6 @@ include '../includes/header.php';
             line-height: 1.8;
         }
 
-        /* Story Section */
         .story-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -78,7 +76,6 @@ include '../includes/header.php';
             margin-bottom: 1rem;
         }
 
-        /* Mission & Vision */
         .values-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -118,7 +115,6 @@ include '../includes/header.php';
             line-height: 1.7;
         }
 
-        /* Team Section */
         .team-section {
             text-align: center;
             margin-bottom: 4rem;
@@ -220,7 +216,6 @@ include '../includes/header.php';
             z-index: 1;
         }
 
-        /* Stats Section */
         .stats-section {
             background: linear-gradient(135deg, rgba(155, 77, 224, 0.05) 0%, transparent 100%);
             padding: 4rem 2rem;
@@ -257,7 +252,6 @@ include '../includes/header.php';
             font-weight: 600;
         }
 
-        /* CTA Section */
         .cta-section {
             text-align: center;
             padding: 4rem 2rem;
@@ -314,7 +308,6 @@ include '../includes/header.php';
 <body>
 
 <div class="about-container">
-    <!-- Hero Section -->
     <div class="about-hero">
         <h1>About UrbanThrift</h1>
         <p>
@@ -324,7 +317,6 @@ include '../includes/header.php';
         </p>
     </div>
 
-    <!-- Story Section -->
     <div class="story-section">
         <div class="story-content">
             <h2>Our Story</h2>
@@ -348,7 +340,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Values Section -->
     <div class="values-section">
         <div class="value-card">
             <div class="icon">🎯</div>
@@ -378,7 +369,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Stats Section -->
     <div class="stats-section">
         <div class="stats-grid">
             <div class="stat-item">
@@ -400,7 +390,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Team Section -->
     <div class="team-section">
         <h2>Meet the Team</h2>
         <p class="subtitle">The passionate people behind UrbanThrift</p>
@@ -420,7 +409,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- CTA Section -->
     <div class="cta-section">
         <h2>Ready to Start Your Sustainable Fashion Journey?</h2>
         <p>Join thousands of conscious shoppers making a difference</p>

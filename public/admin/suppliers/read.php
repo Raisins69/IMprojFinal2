@@ -1,20 +1,16 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
-// Generate CSRF token if not exists
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Initialize variables
 $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_STRING) ?? '';
 $error = '';
 $suppliers = [];
 
 try {
-    // Build query with prepared statements
     $query = "SELECT * FROM suppliers WHERE 1=1";
     $params = [];
     $types = "";
@@ -58,9 +54,7 @@ require_once __DIR__ . '/../../../includes/header.php';
 ?>
 
 <div class="admin-container">
-    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../sidebar.php'; ?>
+    <?php require_once __DIR__ . '/../sidebar.php'; ?>
 
     <main class="admin-content">
         <h2>Suppliers List</h2>

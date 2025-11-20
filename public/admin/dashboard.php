@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../includes/config.php';
 checkAdmin();
 
@@ -7,10 +6,8 @@ require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="admin-container">
-    <!-- Sidebar -->
     <?php require_once __DIR__ . '/sidebar.php'; ?>
 
-    <!-- Main Dashboard Content -->
     <main class="admin-content">
         <h2>Welcome Admin 👑</h2>
         <p>Manage UrbanThrift system here.</p>
@@ -20,10 +17,6 @@ require_once __DIR__ . '/../../includes/header.php';
                 <h3>Total Products</h3>
                 <p>
                     <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
-
                     $result = $conn->query("SELECT COUNT(*) as total FROM products");
                     $row = $result->fetch_assoc();
                     echo $row['total'];
@@ -35,10 +28,6 @@ checkAdmin();
                 <h3>Total Customers</h3>
                 <p>
                     <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
-
                     $result = $conn->query("SELECT COUNT(*) as total FROM users WHERE role='customer'");
                     $row = $result->fetch_assoc();
                     echo $row['total'];
@@ -51,11 +40,6 @@ checkAdmin();
                 <p>
                     ₱
                     <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
-
-                    // ✅ Fixed: Query orders table instead of non-existent sales table
                     $result = $conn->query("SELECT SUM(total_amount) as income FROM orders WHERE status = 'Completed'");
                     $row = $result->fetch_assoc();
                     echo number_format($row['income'] ?? 0, 2);
@@ -67,10 +51,6 @@ checkAdmin();
                 <h3>Total Orders</h3>
                 <p>
                     <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
-
                     $result = $conn->query("SELECT COUNT(*) as total FROM orders");
                     $row = $result->fetch_assoc();
                     echo $row['total'];
@@ -79,14 +59,9 @@ checkAdmin();
             </div>
         </div>
 
-        <!-- Recent Orders -->
         <div style="margin-top: 3rem;">
             <h3 style="color: var(--primary-light); margin-bottom: 1.5rem;">📦 Recent Orders</h3>
             <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
-
             $recent_orders = $conn->query("SELECT o.id, o.order_date, o.total_amount, o.status, c.name as customer_name 
                                           FROM orders o 
                                           JOIN customers c ON o.customer_id = c.id 
@@ -107,11 +82,7 @@ checkAdmin();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- while($order = $recent_orders->fetch_assoc()): ?>
+                    <?php while($order = $recent_orders->fetch_assoc()): ?>
                     <tr>
                         <td>#<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></td>
                         <td><?= htmlspecialchars($order['customer_name']) ?></td>
@@ -128,34 +99,17 @@ checkAdmin();
                             <a href="transactions/view.php?id=<?= $order['id'] ?>" class="btn-view">View</a>
                         </td>
                     </tr>
-                    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- endwhile; ?>
+                    <?php endwhile; ?>
                 </tbody>
             </table>
-            <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- else: ?>
+            <?php else: ?>
             <p style="text-align: center; padding: 2rem; color: var(--text-secondary);">No orders yet.</p>
-            <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- endif; ?>
+            <?php endif; ?>
         </div>
 
-        <!-- Low Stock Alert -->
         <div style="margin-top: 3rem;">
             <h3 style="color: var(--warning); margin-bottom: 1.5rem;">⚠️ Low Stock Alert</h3>
             <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
-
             $low_stock = $conn->query("SELECT * FROM products WHERE stock <= 5 AND stock > 0 ORDER BY stock ASC LIMIT 5");
             
             if ($low_stock && $low_stock->num_rows > 0):
@@ -170,11 +124,7 @@ checkAdmin();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- while($product = $low_stock->fetch_assoc()): ?>
+                    <?php while($product = $low_stock->fetch_assoc()): ?>
                     <tr>
                         <td><?= htmlspecialchars($product['name']) ?></td>
                         <td><?= htmlspecialchars($product['brand']) ?></td>
@@ -188,30 +138,17 @@ checkAdmin();
                             <a href="products/update.php?id=<?= $product['id'] ?>" class="btn-edit">Restock</a>
                         </td>
                     </tr>
-                    <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- endwhile; ?>
+                    <?php endwhile; ?>
                 </tbody>
             </table>
-            <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- else: ?>
-            <p style="text-align: center; padding: 2rem; color: var(--success);">✅ All products have sufficient stock.</p>
-            <?php
-// Include config and check admin access
-require_once __DIR__ . '/../../includes/config.php';
-checkAdmin();
- endif; ?>
+            <?php else: ?>
+            <p style="text-align: center; padding: 2rem; color: var(--success);"> All products have sufficient stock.</p>
+            <?php endif; ?>
         </div>
     </main>
 </div>
 
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../includes/config.php';
 checkAdmin();
- require_once __DIR__ . '/../../includes/footer.php'; ?>
+require_once __DIR__ . '/../../includes/footer.php'; ?>

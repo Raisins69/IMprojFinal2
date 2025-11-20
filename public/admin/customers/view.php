@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
@@ -20,7 +19,6 @@ if (!$customer) {
     exit();
 }
 
-// Get customer's orders
 $orders_stmt = $conn->prepare("
     SELECT o.id, o.order_date, o.total_amount, o.payment_method, o.status, COUNT(oi.id) as item_count
     FROM orders o
@@ -34,7 +32,6 @@ $orders_stmt->bind_param("s", $customer['email']);
 $orders_stmt->execute();
 $orders = $orders_stmt->get_result();
 
-// Get statistics
 $stats_stmt = $conn->prepare("
     SELECT 
         COUNT(DISTINCT o.id) as total_orders,
@@ -59,7 +56,6 @@ require_once __DIR__ . '/../../../includes/header.php';
         <a href="read.php" class="btn-secondary">← Back to List</a>
         <a href="update.php?id=<?= $id ?>" class="btn-primary">✏ Edit Customer</a>
 
-        <!-- Customer Information Card -->
         <div style="background: var(--dark-light); padding: 2rem; border-radius: var(--radius-lg); margin: 2rem 0; border: 1px solid rgba(155, 77, 224, 0.2);">
             <h3 style="color: var(--primary-light); margin-bottom: 1.5rem;">📋 Customer Information</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
@@ -90,7 +86,6 @@ require_once __DIR__ . '/../../../includes/header.php';
             </div>
         </div>
 
-        <!-- Statistics -->
         <div class="stats-container" style="margin: 2rem 0;">
             <div class="stat-card">
                 <h3>Total Orders</h3>
@@ -106,7 +101,6 @@ require_once __DIR__ . '/../../../includes/header.php';
             </div>
         </div>
 
-        <!-- Order History -->
         <h3 style="color: var(--primary-light); margin: 2rem 0 1rem 0;">📦 Order History</h3>
         <?php if ($orders->num_rows > 0): ?>
         <table class="styled-table">

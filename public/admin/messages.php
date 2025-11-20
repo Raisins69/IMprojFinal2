@@ -1,9 +1,7 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../includes/config.php';
 checkAdmin();
 
-// Handle message status updates
 if (isset($_POST['update_status']) && isset($_POST['message_id']) && isset($_POST['status'])) {
     $message_id = intval($_POST['message_id']);
     $status = $_POST['status'];
@@ -17,7 +15,6 @@ if (isset($_POST['update_status']) && isset($_POST['message_id']) && isset($_POS
     exit();
 }
 
-// Handle message deletion
 if (isset($_POST['delete_message']) && isset($_POST['message_id'])) {
     $message_id = intval($_POST['message_id']);
     
@@ -30,17 +27,14 @@ if (isset($_POST['delete_message']) && isset($_POST['message_id'])) {
     exit();
 }
 
-// Get all messages, newest first
 $messages = $conn->query("SELECT * FROM contact_messages ORDER BY created_at DESC");
 
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="admin-container">
-    <!-- Sidebar -->
     <?php require_once __DIR__ . '/sidebar.php'; ?>
 
-    <!-- Main Content -->
     <main class="admin-content">
 
         <div class="container-fluid px-4">
@@ -106,7 +100,6 @@ require_once __DIR__ . '/../../includes/header.php';
                             </td>
                         </tr>
 
-                        <!-- Message Modal -->
                         <div class="modal fade" id="messageModal<?= $message['id'] ?>" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">

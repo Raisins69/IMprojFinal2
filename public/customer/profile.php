@@ -17,11 +17,9 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 if (isset($_POST['update'])) {
-    // Enable error reporting for debugging
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
     
-    // Log the POST data
     error_log("POST data: " . print_r($_POST, true));
     error_log("FILES data: " . print_r($_FILES, true));
     
@@ -29,14 +27,12 @@ if (isset($_POST['update'])) {
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
     $address = trim($_POST['address']);
-    $profile_photo = $user['profile_photo']; // Keep existing photo by default
+    $profile_photo = $user['profile_photo']; 
 
-    // Validate
     if (empty($username) || empty($email) || empty($phone) || empty($address)) {
         $message = "All fields are required!";
         $message_type = "error";
     } else {
-        // Handle profile photo upload
         if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] == 0) {
             $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (in_array($_FILES['profile_photo']['type'], $allowed_types)) {
@@ -44,12 +40,10 @@ if (isset($_POST['update'])) {
                 $profile_photo = uniqid() . '_' . time() . '.' . $file_extension;
                 $upload_dir = __DIR__ . '/../uploads/profiles/';
                 
-                // Create directory if it doesn't exist
                 if (!file_exists($upload_dir)) {
                     mkdir($upload_dir, 0777, true);
                 }
                 
-                // Delete old photo if exists
                 if ($user['profile_photo'] && file_exists($upload_dir . $user['profile_photo'])) {
                     unlink($upload_dir . $user['profile_photo']);
                 }
@@ -58,7 +52,6 @@ if (isset($_POST['update'])) {
             }
         }
 
-        // Log the values being updated
         error_log("Updating profile with values - Username: $username, Email: $email, Phone: $phone, Address: $address, Photo: $profile_photo, UserID: $customer_id");
         
         $stmt = $conn->prepare("UPDATE users SET username = ?, email = ?, phone = ?, address = ?, profile_photo = ? WHERE id = ?");
@@ -70,20 +63,16 @@ if (isset($_POST['update'])) {
             $stmt->bind_param("sssssi", $username, $email, $phone, $address, $profile_photo, $customer_id);
             
             if ($stmt->execute()) {
-                // Check if any rows were affected
                 if ($stmt->affected_rows > 0) {
-                    // Send profile update notification
                     require_once __DIR__ . '/../../includes/EmailService.php';
                     $emailService = new EmailService();
                     
-                    // Get updated user data
                     $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
                     $stmt->bind_param("i", $customer_id);
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $user = $result->fetch_assoc();
                     
-                    // Send notification email
                     $emailService->sendProfileUpdateNotification([
                         'id' => $user['id'],
                         'name' => $user['username'],
@@ -95,7 +84,6 @@ if (isset($_POST['update'])) {
                     $message = "Profile updated successfully! A confirmation has been sent to your email.";
                     $message_type = "success";
                     
-                    // Clear any POST data to prevent resubmission
                     $_POST = array();
                 } else {
                     $message = "No changes were made to your profile.";
@@ -106,7 +94,6 @@ if (isset($_POST['update'])) {
                 $message = "Update failed: " . $error_message;
                 $message_type = "error";
                 
-                // Log the error for debugging
                 error_log("Profile update error: " . $error_message);
                 error_log("POST data: " . print_r($_POST, true));
                 error_log("SQL: UPDATE users SET username = '$username', email = '$email', phone = '$phone', address = '$address', profile_photo = '$profile_photo' WHERE id = $customer_id");
@@ -487,7 +474,6 @@ include '../../includes/header.php';
     const form = document.getElementById('profileForm');
     const inputs = ['usernameInput', 'emailInput', 'phoneInput', 'addressInput', 'photoInput'];
     
-    // Function to validate a single input
     function validateInput(input) {
         const value = input.value.trim();
         const required = input.getAttribute('data-required') === 'true';
@@ -496,25 +482,21 @@ include '../../includes/header.php';
         const pattern = input.getAttribute('data-pattern');
         const errorMessage = input.getAttribute('data-pattern-message') || 'Invalid input';
         
-        // Check required field
         if (required && !value) {
             showError(input, 'This field is required');
             return false;
         }
         
-        // Check min length
         if (minLength && value.length < parseInt(minLength)) {
             showError(input, `Must be at least ${minLength} characters`);
             return false;
         }
         
-        // Check max length
         if (maxLength && value.length > parseInt(maxLength)) {
             showError(input, `Must be less than ${maxLength} characters`);
             return false;
         }
         
-        // Check pattern
         if (pattern && value) {
             const regex = new RegExp(pattern);
             if (!regex.test(value)) {
@@ -523,12 +505,10 @@ include '../../includes/header.php';
             }
         }
         
-        // If all validations pass
         clearError(input);
         return true;
     }
     
-    // Function to show error message
     function showError(input, message) {
         const formGroup = input.closest('.form-group') || input.closest('.form-textarea').closest('.form-group');
         let errorElement = formGroup.querySelector('.error-message');
@@ -544,7 +524,6 @@ include '../../includes/header.php';
         input.style.borderColor = '#ff4444';
     }
     
-    // Function to clear error message
     function clearError(input) {
         const formGroup = input.closest('.form-group') || input.closest('.form-textarea').closest('.form-group');
         const errorElement = formGroup?.querySelector('.error-message');
@@ -558,9 +537,7 @@ include '../../includes/header.php';
         }
     }
     
-    // Function to validate all inputs
     function validateForm() {
-        // Prevent the default form submission
         event.preventDefault();
         
         let isValid = true;
@@ -575,14 +552,11 @@ include '../../includes/header.php';
         });
         
         if (isValid) {
-            // If form is valid, submit it programmatically
             const form = document.getElementById('profileForm');
             const formData = new FormData(form);
             
-            // Add a hidden field to indicate form submission
             formData.append('update', '1');
             
-            // Submit the form using fetch API
             fetch(form.action || window.location.href, {
                 method: 'POST',
                 body: formData
@@ -595,9 +569,7 @@ include '../../includes/header.php';
                 }
             })
             .then(html => {
-                // If we get here, the form submission failed
                 document.documentElement.innerHTML = html;
-                // Try to show any error messages
                 const errorDiv = document.querySelector('.alert.error');
                 if (errorDiv) {
                     errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -609,30 +581,25 @@ include '../../includes/header.php';
             });
         }
         
-        return false; // Always return false to prevent default form submission
+        return false; 
     }
     
     function enableEdit() {
-        // Enable all inputs
         inputs.forEach(id => {
             const input = document.getElementById(id);
             if (input) {
                 input.disabled = false;
-                // Add event listeners for validation
                 input.addEventListener('blur', () => validateInput(input));
             }
         });
         
-        // Toggle buttons
         document.getElementById('viewMode').style.display = 'none';
         document.getElementById('editMode').style.display = 'flex';
         
-        // Focus on first input
         document.getElementById('usernameInput').focus();
     }
     
     function cancelEdit() {
-        // Disable all inputs and clear errors
         inputs.forEach(id => {
             const input = document.getElementById(id);
             if (input) {
@@ -641,19 +608,15 @@ include '../../includes/header.php';
             }
         });
         
-        // Reset form to original values
         const form = document.getElementById('profileForm');
         form.reset();
         
-        // Toggle buttons
         document.getElementById('viewMode').style.display = 'flex';
         document.getElementById('editMode').style.display = 'none';
         
-        // Reset any validation errors
         const errorMessages = document.querySelectorAll('.error-message');
         errorMessages.forEach(error => error.style.display = 'none');
         
-        // Reset image preview if exists
         const profileImage = document.getElementById('profileImage');
         if (profileImage) {
             profileImage.src = '<?= BASE_URL ?>/uploads/profiles/<?= htmlspecialchars($user['profile_photo'] ?? '') ?>';
@@ -662,33 +625,28 @@ include '../../includes/header.php';
     
     function previewImage(input) {
         if (input.files && input.files[0]) {
-            // Validate file type
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!allowedTypes.includes(input.files[0].type)) {
                 showError(input, 'Please upload a valid image file (JPG, PNG, GIF, or WebP)');
-                input.value = ''; // Clear the file input
+                input.value = ''; 
                 return;
             }
             
-            // Validate file size (max 2MB)
-            const maxSize = 2 * 1024 * 1024; // 2MB
+            const maxSize = 2 * 1024 * 1024; 
             if (input.files[0].size > maxSize) {
                 showError(input, 'Image size should be less than 2MB');
-                input.value = ''; // Clear the file input
+                input.value = ''; 
                 return;
             }
             
-            // Clear any previous errors
             clearError(input);
             
-            // Preview the image
             const reader = new FileReader();
             reader.onload = function(e) {
                 const profileImage = document.getElementById('profileImage');
                 if (profileImage) {
                     profileImage.src = e.target.result;
                 } else {
-                    // If no image element exists, create one
                     const img = document.createElement('img');
                     img.id = 'profileImage';
                     img.src = e.target.result;
@@ -705,17 +663,14 @@ include '../../includes/header.php';
         }
     }
     
-    // Initialize form validation
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('profileForm');
         
-        // Add input event listeners for real-time validation
         inputs.forEach(id => {
             const input = document.getElementById(id);
             if (input) {
                 input.addEventListener('blur', function() {
                     if (!input.disabled) {
-                        // Trigger validation for this field
                         validateInput(input);
                     }
                 });
@@ -725,7 +680,6 @@ include '../../includes/header.php';
 </script>
 
 <script>
-    // Auto-format phone number
     const phoneInput = document.getElementById('phoneInput');
     phoneInput.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');

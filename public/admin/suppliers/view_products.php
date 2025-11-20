@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
@@ -13,30 +12,25 @@ $products = [];
 $error = '';
 
 try {
-    // Get all suppliers for dropdown
     $suppliers_result = $conn->query("SELECT id, name FROM suppliers ORDER BY name");
     if (!$suppliers_result) {
         throw new Exception('Failed to fetch suppliers: ' . $conn->error);
     }
     
-    // Store suppliers in an array for later use
     $suppliers = [];
     while ($row = $suppliers_result->fetch_assoc()) {
         $suppliers[] = $row;
     }
     
-    // Get selected supplier
     $selected_supplier = isset($_GET['supplier_id']) ? intval($_GET['supplier_id']) : 0;
 
     if ($selected_supplier > 0) {
-        // Get supplier info
         $stmt = $conn->prepare("SELECT * FROM suppliers WHERE id = ?");
         $stmt->bind_param("i", $selected_supplier);
         $stmt->execute();
         $supplier_info = $stmt->get_result()->fetch_assoc();
         
         if ($supplier_info) {
-            // Get products supplied by this supplier
             $stmt = $conn->prepare("
                 SELECT p.*, 
                        COALESCE(SUM(sd.quantity), 0) as total_supplied,
@@ -56,22 +50,6 @@ try {
             while ($row = $products_result->fetch_assoc()) {
                 $products[] = $row;
             }
-            // Get products supplied by this supplier
-            $stmt = $conn->prepare("
-                SELECT p.*, 
-                       COALESCE(SUM(sd.quantity), 0) as total_supplied,
-                       COALESCE(SUM(sd.cost), 0) as total_cost,
-                       COUNT(sd.id) as delivery_count
-                FROM products p
-                LEFT JOIN supplier_deliveries sd ON p.id = sd.product_id AND sd.supplier_id = ?
-                LEFT JOIN supplier_products sp ON p.id = sp.product_id AND sp.supplier_id = ?
-                WHERE sp.supplier_id = ? OR sd.supplier_id = ?
-                GROUP BY p.id
-                ORDER BY p.name
-            ");
-            $stmt->bind_param("iiii", $selected_supplier, $selected_supplier, $selected_supplier, $selected_supplier);
-            $stmt->execute();
-            $products = $stmt->get_result();
         }
     }
 } catch (Exception $e) {

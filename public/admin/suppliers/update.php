@@ -1,19 +1,15 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
-// Initialize variables
 $msg = '';
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-// Validate ID
 if (!$id) {
     header("Location: read.php");
     exit();
 }
 
-// Fetch existing data
 $stmt = $conn->prepare("SELECT * FROM suppliers WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -24,7 +20,6 @@ if (!$supplier) {
     exit();
 }
 
-// Update processing
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name']);
     $contact_person = trim($_POST['contact_person']);
@@ -32,13 +27,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email']);
     $address = trim($_POST['address']);
 
-    // Validate inputs
     if (empty($name) || empty($contact_person) || empty($email)) {
         $msg = "❌ Please fill all required fields.";
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $msg = "❌ Please enter a valid email address.";
     } else {
-        // Check for duplicate supplier (name or email)
         $checkStmt = $conn->prepare("SELECT id FROM suppliers WHERE (name = ? OR email = ?) AND id != ?");
         $checkStmt->bind_param("ssi", $name, $email, $id);
         $checkStmt->execute();
@@ -62,20 +55,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     
-    // Refresh supplier data
     $stmt = $conn->prepare("SELECT * FROM suppliers WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $supplier = $stmt->get_result()->fetch_assoc();
 }
 
-// Include header
 require_once __DIR__ . '/../../../includes/header.php';
 ?>
 
 <div class="admin-container">
-    <?php
- require_once '../sidebar.php'; ?>
+    <?php require_once '../sidebar.php'; ?>
 
     <main class="admin-content">
         <h2>Edit Supplier</h2>

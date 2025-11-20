@@ -1,15 +1,12 @@
 <?php
-// Ensure required variables are set
 if (!isset($order, $user, $shippedDate)) {
     throw new InvalidArgumentException('Missing required template variables: order, user, or shippedDate');
 }
 
-// Helper function to safely output variables
 function safe_output($value, $default = '') {
     return isset($value) ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $default;
 }
 
-// Set default values for optional variables
 $trackingInfo = $trackingInfo ?? null;
 $orderNumber = $order['order_number'] ?? 'N/A';
 $itemCount = $order['item_count'] ?? 0;

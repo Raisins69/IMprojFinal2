@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
@@ -10,44 +9,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 
 $msg = "";
 
-// Debug customer query
 $customers = $conn->query("SELECT * FROM customers ORDER BY name");
 if (!$customers) {
     die("Error fetching customers: " . $conn->error);
 }
 
-// Debug: Check number of customers
 $customer_count = $customers->num_rows;
-error_log("Number of customers found: " . $customer_count);
-
-// Debug: Fetch all customers and log them
-$all_customers = [];
-while ($row = $customers->fetch_assoc()) {
-    $all_customers[] = $row;
-}
-error_log("Customers data: " . print_r($all_customers, true));
-
-// Reset pointer back to start for the actual display
 $customers->data_seek(0);
 
-// Debug products query
 $products = $conn->query("SELECT id, name, price, stock, image FROM products WHERE stock > 0 ORDER BY name");
 if (!$products) {
     die("Error fetching products: " . $conn->error);
 }
 
-// Debug: Check number of products
 $product_count = $products->num_rows;
-error_log("Number of products found: " . $product_count);
-
-// Debug: Fetch all products and log them
-$all_products = [];
-while ($row = $products->fetch_assoc()) {
-    $all_products[] = $row;
-}
-error_log("Products data: " . print_r($all_products, true));
-
-// Reset pointer back to start for the actual display
 $products->data_seek(0);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -65,7 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $total = 0;
             $order_items = [];
             
-            // Validate products and calculate total
             foreach ($product_ids as $index => $product_id) {
                 $qty = intval($quantities[$index]);
                 if ($qty <= 0) continue;
@@ -92,20 +66,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 throw new Exception("No valid products selected");
             }
             
-            // Create order
             $stmt = $conn->prepare("INSERT INTO orders (customer_id, order_date, payment_method, total_amount, status) 
                                    VALUES (?, NOW(), ?, ?, 'Completed')");
             $stmt->bind_param("isd", $customer_id, $payment_method, $total);
             $stmt->execute();
             $order_id = $conn->insert_id;
             
-            // Insert order items and update stock
             foreach ($order_items as $item) {
                 $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
                 $stmt->bind_param("iiid", $order_id, $item['product_id'], $item['quantity'], $item['price']);
                 $stmt->execute();
                 
-                // Update stock
                 $stmt = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
                 $stmt->bind_param("ii", $item['quantity'], $item['product_id']);
                 $stmt->execute();
@@ -125,9 +96,7 @@ require_once __DIR__ . '/../../../includes/header.php';
 ?>
 
 <div class="admin-container">
-    <?php
-    // Config already included at the top
-    require_once '../sidebar.php'; ?>
+    <?php require_once '../sidebar.php'; ?>
 
     <main class="admin-content">
         <h2>Create Manual Transaction</h2>
@@ -141,7 +110,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                     <option value="">Select Customer</option>
                     <?php 
                     if ($customer_count > 0): 
-                        $customers->data_seek(0); // Reset pointer to start
+                        $customers->data_seek(0);
                         while($customer = $customers->fetch_assoc()): 
                     ?>
                         <option value="<?= htmlspecialchars($customer['id']) ?>">
@@ -150,7 +119,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                         </option>
                     <?php 
                         endwhile;
-                        $customers->data_seek(0); // Reset pointer again for any future use
+                        $customers->data_seek(0);
                     else: 
                     ?>
                         <option value="">No customers found in database</option>
@@ -179,7 +148,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                             <option value="">Select Product</option>
                             <?php 
                             if ($products && $products->num_rows > 0) {
-                                $products->data_seek(0); // Reset pointer to start
+                                $products->data_seek(0);
                                 while($product = $products->fetch_assoc()): 
                             ?>
                                 <option value="<?= $product['id'] ?>" 
@@ -191,7 +160,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                                 </option>
                             <?php 
                                 endwhile;
-                                $products->data_seek(0); // Reset pointer again for any future use
+                                $products->data_seek(0);
                             } else {
                                 echo '<option value="">No products available</option>';
                             }
@@ -352,7 +321,6 @@ require_once __DIR__ . '/../../../includes/header.php';
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('transactionForm');
     
-    // Form submission handler
     form.addEventListener('submit', function(e) {
         if (validateForm() && confirm('Are you sure you want to create this transaction?')) {
             return true;
@@ -361,14 +329,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return false;
     });
     
-    // Live validation on blur for all form inputs
     const formInputs = form.querySelectorAll('input, select, textarea');
     formInputs.forEach(input => {
         input.addEventListener('blur', function() {
             validateField(this);
         });
         
-        // Remove error class when user starts typing
         input.addEventListener('input', function() {
             if (this.classList.contains('is-invalid')) {
                 this.classList.remove('is-invalid');
@@ -379,19 +345,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // If this is a product select, update the max quantity
             if (this.hasAttribute('data-product-select')) {
                 updateQuantityMax(this);
             }
             
-            // If this is a quantity input, validate against max stock
             if (this.classList.contains('quantity-input')) {
                 validateQuantity(this);
             }
         });
     });
     
-    // Initialize quantity max values for existing product selects
     document.querySelectorAll('[data-product-select]').forEach(select => {
         updateQuantityMax(select);
     });
@@ -402,7 +365,6 @@ function addProduct() {
     const firstRow = container.querySelector('.product-row');
     const newRow = firstRow.cloneNode(true);
     
-    // Clear the values in the new row
     const selects = newRow.querySelectorAll('select');
     const inputs = newRow.querySelectorAll('input');
     const errorMessages = newRow.querySelectorAll('.error-message');
@@ -423,7 +385,6 @@ function addProduct() {
         div.textContent = '';
     });
     
-    // Add event listeners to the new row
     newRow.querySelector('select').addEventListener('change', function() {
         updateQuantityMax(this);
     });
@@ -455,7 +416,6 @@ function updateQuantityMax(selectElement) {
         quantityInput.setAttribute('data-max', maxStock);
         quantityInput.max = maxStock;
         
-        // If current value exceeds max, adjust it
         if (parseInt(quantityInput.value) > maxStock) {
             quantityInput.value = maxStock > 0 ? maxStock : 1;
         }
@@ -464,7 +424,6 @@ function updateQuantityMax(selectElement) {
         quantityInput.removeAttribute('max');
     }
     
-    // Validate the quantity after updating max
     validateQuantity(quantityInput);
 }
 
@@ -491,7 +450,6 @@ function validateQuantity(inputElement) {
         return false;
     }
     
-    // Clear any existing errors
     inputElement.classList.remove('is-invalid');
     const errorElement = inputElement.nextElementSibling;
     if (errorElement && errorElement.classList.contains('error-message')) {
@@ -501,20 +459,17 @@ function validateQuantity(inputElement) {
     return true;
 }
 
-// Initialize validation for all fields
 function validateForm() {
     let isValid = true;
     const form = document.getElementById('transactionForm');
     const formInputs = form.querySelectorAll('input, select, textarea');
     
-    // First, validate all fields
     formInputs.forEach(input => {
         if (!validateField(input)) {
             isValid = false;
         }
     });
     
-    // Then, validate product rows specifically
     const productRows = document.querySelectorAll('.product-row');
     let hasValidProduct = false;
     
@@ -522,13 +477,11 @@ function validateForm() {
         const select = row.querySelector('select[data-product-select]');
         const quantityInput = row.querySelector('.quantity-input');
         
-        // Validate product selection
         if (!select.value) {
             showError(select, 'Please select a product');
             isValid = false;
         }
         
-        // Validate quantity
         if (select.value && !validateQuantity(quantityInput)) {
             isValid = false;
         }
@@ -538,7 +491,6 @@ function validateForm() {
         }
     });
     
-    // Ensure at least one product is selected
     if (!hasValidProduct) {
         const firstSelect = document.querySelector('select[data-product-select]');
         showError(firstSelect, 'Please add at least one product');
@@ -548,32 +500,26 @@ function validateForm() {
     return isValid;
 }
 
-// Validate a single field
 function validateField(field) {
     const value = field.value.trim();
     const errorElement = field.closest('.form-group')?.querySelector('.error-message') || 
                          field.parentElement.querySelector('.error-message');
     
-    // Skip validation for hidden fields
     if (field.type === 'hidden') return true;
     
-    // Required validation
     if (field.getAttribute('data-required') === 'true' && !value) {
         showError(field, 'This field is required');
         return false;
     }
     
-    // Skip further validation if the field is empty and not required
     if (!value) return true;
     
-    // Min validation
     const min = field.getAttribute('data-min');
     if (min && parseInt(value) < parseInt(min)) {
         showError(field, `Value must be at least ${min}`);
         return false;
     }
     
-    // Max validation
     const max = field.getAttribute('data-max');
     if (max && parseInt(value) > parseInt(max)) {
         showError(field, `Value cannot exceed ${max}`);
@@ -588,7 +534,6 @@ function validateField(field) {
     return true;
 }
 
-// Show error message
 function showError(field, message) {
     field.classList.add('is-invalid');
     const errorElement = field.closest('.form-group')?.querySelector('.error-message') || 

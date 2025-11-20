@@ -1,9 +1,7 @@
 <?php
-// Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Debug logging setup
 $debugLogFile = __DIR__ . '/update_debug.log';
 file_put_contents($debugLogFile, "[" . date('Y-m-d H:i:s') . "] Script started\n", FILE_APPEND);
 
@@ -29,10 +27,8 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $id = intval($_GET['id']);
 $msg = "";
 
-// Debug: Log the current request
 error_log("Update product request for ID: " . $id);
 
-// Fetch all suppliers
 $suppliers = [];
 try {
     $supplierResult = $conn->query("SELECT id, name FROM suppliers ORDER BY name");
@@ -43,7 +39,6 @@ try {
     error_log("Error fetching suppliers: " . $e->getMessage());
 }
 
-// Fetch existing product data with supplier information
 $stmt = $conn->prepare("
     SELECT p.*, sp.supplier_id, s.name as supplier_name 
     FROM products p
@@ -60,16 +55,13 @@ if (!$product) {
     exit();
 }
 
-// Log basic request info for debugging
 error_log("Processing update for product ID: " . $id);
 
-// Update processing
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     debugLog("=== FORM SUBMITTED ===");
     debugLog("POST data: " . print_r($_POST, true));
     debugLog("FILES data: " . print_r($_FILES, true));
     
-    // Log current directory and permissions
     debugLog("Current directory: " . __DIR__);
     debugLog("Upload directory exists: " . (is_dir('../../uploads') ? 'Yes' : 'No'));
     debugLog("Upload directory writable: " . (is_writable('../../uploads') ? 'Yes' : 'No'));
@@ -84,22 +76,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $condition_type = isset($_POST['condition_type']) ? trim($_POST['condition_type']) : '';
     $imageName = $product['image']; // default: no image change
     $supplier_id = (isset($_POST['supplier_id']) && $_POST['supplier_id'] !== '') ? intval($_POST['supplier_id']) : null;
-    
-    // Debug output - removed for cleaner UI
-    // echo '<div style="background: #e2f0fd; padding: 10px; margin: 10px 0; border: 1px solid #b8daff; border-radius: 4px;">';
-    // echo '<h4>Processed Form Data:</h4>';
-    // echo '<pre>';
-    // echo "Name: $name\n";
-    // echo "Brand: $brand\n";
-    // echo "Category: $category\n";
-    // echo "Size: $size\n";
-    // echo "Price: $price\n";
-    // echo "Stock: $stock\n";
-    // echo "Condition: $condition_type\n";
-    // echo "Supplier ID: $supplier_id\n";
-    // echo "Current Image: $imageName\n";
-    // echo '</pre>';
-    // echo '</div>';
     
     // Debug log form data
     error_log("Form data: " . print_r([
@@ -124,31 +100,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $msg = "❌ " . implode(", ", $validationErrors);
         debugLog("Validation failed: " . $msg);
     } else {
-        // Start transaction
         $conn->begin_transaction();
         $success = false;
         
         try {
-            // Handle file upload if a new image is provided
             if (!empty($_FILES["image"]["name"]) && $_FILES["image"]["error"] == 0) {
                 $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
                 $file_type = $_FILES["image"]["type"];
                 
                 if (in_array($file_type, $allowed_types)) {
-                    // Create uploads directory if it doesn't exist
                     $upload_dir = __DIR__ . '/../../../public/uploads/';
                     if (!file_exists($upload_dir)) {
                         mkdir($upload_dir, 0777, true);
                     }
                     
-                    // Generate unique filename
                     $file_extension = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
                     $imageName = uniqid() . '.' . $file_extension;
                     $target = $upload_dir . $imageName;
                     
-                    // Move uploaded file
                     if (move_uploaded_file($_FILES["image"]["tmp_name"], $target)) {
-                        // Delete old image if it exists and is not the default
                         if (!empty($product['image']) && $product['image'] !== 'default.jpg' && file_exists($upload_dir . $product['image'])) {
                             @unlink($upload_dir . $product['image']);
                         }
@@ -160,7 +130,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
             
-            // Update the product with supplier_id directly
             $updateQuery = "UPDATE products SET 
                 name = ?,
                 brand = ?,
@@ -179,7 +148,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 throw new Exception("Prepare failed: " . $conn->error);
             }
             
-            // Bind parameters with proper NULL handling for supplier_id
             $types = "ssssdsss";
             $params = [
                 $name, 
@@ -192,7 +160,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $imageName
             ];
             
-            // Add supplier_id with proper type
             if ($supplier_id !== null) {
                 $types .= "i";
                 $params[] = $supplier_id;
@@ -201,11 +168,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $params[] = null;
             }
             
-            // Add the ID
             $types .= "i";
             $params[] = $id;
             
-            // Bind parameters
             $stmt->bind_param($types, ...$params);
             
             if (!$stmt->execute()) {
@@ -213,9 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             $stmt->close();
             
-            // Update or insert supplier relationship
             if ($supplier_id !== null) {
-                // Check if relationship already exists
                 $checkStmt = $conn->prepare("SELECT id FROM supplier_products WHERE product_id = ?");
                 $checkStmt->bind_param("i", $id);
                 $checkStmt->execute();
@@ -223,11 +186,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $checkStmt->close();
                 
                 if ($exists) {
-                    // Update existing relationship
                     $relStmt = $conn->prepare("UPDATE supplier_products SET supplier_id = ?, is_primary = 1 WHERE product_id = ?");
                     $relStmt->bind_param("ii", $supplier_id, $id);
                 } else {
-                    // Insert new relationship
                     $relStmt = $conn->prepare("INSERT INTO supplier_products (supplier_id, product_id, is_primary) VALUES (?, ?, 1)");
                     $relStmt->bind_param("ii", $supplier_id, $id);
                 }
@@ -237,31 +198,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $relStmt->close();
             } else {
-                // If no supplier is selected, remove any existing relationship
                 $delStmt = $conn->prepare("DELETE FROM supplier_products WHERE product_id = ?");
                 $delStmt->bind_param("i", $id);
                 $delStmt->execute();
                 $delStmt->close();
             }
             
-            // Commit transaction
             $conn->commit();
             $success = true;
             $msg = "✅ Product updated successfully!";
             $_SESSION['success'] = $msg;
             debugLog($msg);
             
-            // Redirect after successful update
             header("Location: read.php");
             exit();
             
         } catch (Exception $e) {
-            // Rollback transaction on error
             $conn->rollback();
             $msg = "❌ Error: " . $e->getMessage();
             error_log("Update failed: " . $msg);
             
-            // Clean up uploaded file if something went wrong
             if (isset($imageName) && $imageName !== $product['image'] && file_exists($upload_dir . $imageName)) {
                 @unlink($upload_dir . $imageName);
             }

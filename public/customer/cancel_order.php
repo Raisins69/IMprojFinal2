@@ -15,12 +15,11 @@ if (!isset($_POST['order_id']) || !is_numeric($_POST['order_id'])) {
 $order_id = intval($_POST['order_id']);
 $customer_id = $_SESSION['user_id'];
 
-// Verify the order belongs to the customer and is pending
 $stmt = $conn->prepare("
     SELECT o.*, u.email as user_email 
     FROM orders o
     JOIN customers c ON o.customer_id = c.id
-    JOIN users u ON u.id = c.user_id
+    JOIN users u ON u.email = c.email
     WHERE o.id = ? AND u.id = ? AND o.status = 'Pending'
     LIMIT 1
 ");
@@ -35,23 +34,19 @@ if (!$order) {
     exit();
 }
 
-// Update order status to Cancelled
 $stmt = $conn->prepare("UPDATE orders SET status = 'Cancelled' WHERE id = ?");
 $stmt->bind_param("i", $order_id);
 
 if ($stmt->execute()) {
-    // Send cancellation notification email
     require_once __DIR__ . '/../../includes/EmailService.php';
     $emailService = new EmailService();
     
-    // Get user details
     $stmt = $conn->prepare("SELECT username, email FROM users WHERE id = ?");
     $stmt->bind_param("i", $customer_id);
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
     
     if ($user) {
-        // Get order items for the email
         $stmt = $conn->prepare("
             SELECT oi.*, p.name as product_name
             FROM order_items oi
@@ -66,7 +61,6 @@ if ($stmt->execute()) {
             $items[] = $row;
         }
         
-        // Prepare order data for email
         $order_data = [
             'id' => $order_id,
             'order_number' => 'ORD' . str_pad($order_id, 6, '0', STR_PAD_LEFT),
@@ -78,7 +72,6 @@ if ($stmt->execute()) {
             'cancellation_reason' => $_POST['reason'] ?? 'Customer requested cancellation'
         ];
         
-        // Send status update email
         $emailService->sendOrderStatusUpdate(
             $order_data,
             [

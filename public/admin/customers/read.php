@@ -1,15 +1,12 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
-// Initialize variables
 $message = filter_input(INPUT_GET, 'msg', FILTER_SANITIZE_STRING) ?? '';
 $users = [];
 $error = '';
 
 try {
-    // Prepare and execute query
     $query = "SELECT id, username, email, phone, role, is_active, created_at 
               FROM users 
               ORDER BY id DESC";

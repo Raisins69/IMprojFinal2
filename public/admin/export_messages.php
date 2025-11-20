@@ -7,10 +7,8 @@ header('Content-Disposition: attachment; filename=customer_messages_' . date('Y-
 
 $output = fopen('php://output', 'w');
 
-// Add CSV headers
 fputcsv($output, ['ID', 'Name', 'Email', 'Phone', 'Subject', 'Message', 'Status', 'Date']);
 
-// Get messages
 $result = $conn->query("SELECT * FROM contact_messages ORDER BY created_at DESC");
 while ($row = $result->fetch_assoc()) {
     fputcsv($output, [

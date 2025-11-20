@@ -1,5 +1,4 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
@@ -15,7 +14,6 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $order_id = intval($_GET['id']);
 
-// Get order details
 $stmt = $conn->prepare("
     SELECT o.*, c.name as customer_name, c.email as customer_email
     FROM orders o
@@ -31,7 +29,6 @@ if (!$order) {
     exit();
 }
 
-// Get order items
 $stmt = $conn->prepare("
     SELECT oi.*, p.name as product_name, p.image, p.stock
     FROM order_items oi
@@ -46,18 +43,15 @@ $items = $result->fetch_all(MYSQLI_ASSOC);
 $message = "";
 $message_type = "";
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $payment_method = trim($_POST['payment_method']);
     $status = trim($_POST['status']);
     
-    // Get current status before update
     $stmt = $conn->prepare("SELECT status FROM orders WHERE id = ?");
     $stmt->bind_param("i", $order_id);
     $stmt->execute();
     $current_status = $stmt->get_result()->fetch_assoc()['status'];
     
-    // Update order
     $stmt = $conn->prepare("UPDATE orders SET payment_method = ?, status = ? WHERE id = ?");
     $stmt->bind_param("ssi", $payment_method, $status, $order_id);
     
@@ -65,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $message = "✅ Order updated successfully!";
         $message_type = "success";
         
-        // Refresh order data
         $stmt = $conn->prepare("
             SELECT o.*, c.name as customer_name, c.email as customer_email
             FROM orders o
@@ -76,12 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
         $order = $stmt->get_result()->fetch_assoc();
         
-        // Send status update email if status changed
         if ($current_status !== $status) {
             require_once __DIR__ . '/../../../includes/EmailService.php';
             $emailService = new EmailService();
             
-            // Get order items for the email
             $stmt = $conn->prepare("
                 SELECT oi.*, p.name as product_name
                 FROM order_items oi
@@ -96,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $items[] = $row;
             }
             
-            // Prepare order data for email
             $order_data = [
                 'id' => $order_id,
                 'order_number' => 'ORD' . str_pad($order_id, 6, '0', STR_PAD_LEFT),
@@ -108,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'tracking_number' => $order['tracking_number'] ?? null
             ];
             
-            // Send status update email
             $emailService->sendOrderStatusUpdate(
                 $order_data,
                 [
@@ -145,7 +134,6 @@ require_once __DIR__ . '/../../../includes/header.php';
             </div>
         <?php endif; ?>
 
-        <!-- Order Information -->
         <div style="background: var(--dark-light); padding: 1.5rem; border-radius: var(--radius-lg); margin: 2rem 0; border: 1px solid rgba(155, 77, 224, 0.2);">
             <h3 style="color: var(--primary-light); margin-bottom: 1rem;">Order Information</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
@@ -168,7 +156,6 @@ require_once __DIR__ . '/../../../includes/header.php';
             </div>
         </div>
 
-        <!-- Order Items -->
         <h3 style="color: var(--primary-light); margin: 2rem 0 1rem 0;">📦 Order Items</h3>
         <table class="styled-table">
             <thead>
@@ -199,7 +186,6 @@ require_once __DIR__ . '/../../../includes/header.php';
             </tfoot>
         </table>
 
-        <!-- Edit Form -->
         <h3 style="color: var(--primary-light); margin: 2rem 0 1rem 0;">✏ Edit Order Details</h3>
         <form method="POST" id="updateTransactionForm" class="form-box" style="max-width: 600px;" novalidate>
             <div class="form-group">

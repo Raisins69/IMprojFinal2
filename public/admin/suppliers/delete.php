@@ -1,20 +1,16 @@
 <?php
-// Include config and check admin access
 require_once __DIR__ . '/../../../includes/config.php';
 checkAdmin();
 
-// Initialize variables
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $token = $_GET['token'] ?? '';
 
-// Validate CSRF token
 if (!isset($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
     $_SESSION['error'] = 'Invalid or missing CSRF token';
     header('Location: read.php');
     exit();
 }
 
-// Validate ID
 if (!$id) {
     $_SESSION['error'] = 'Invalid supplier ID';
     header('Location: read.php');
@@ -22,7 +18,6 @@ if (!$id) {
 }
 
 try {
-    // Check if supplier exists
     $stmt = $conn->prepare("SELECT id FROM suppliers WHERE id = ?");
     if ($stmt === false) {
         throw new Exception('Database prepare failed: ' . $conn->error);
@@ -40,7 +35,6 @@ try {
         exit();
     }
     
-    // Check for related records (e.g., products, deliveries)
     $checkStmt = $conn->prepare("
         (SELECT 'products' AS table_name, COUNT(*) AS count FROM products WHERE supplier_id = ?)
         UNION ALL
@@ -67,15 +61,11 @@ try {
         }
     }
     
-    // Start transaction
     $conn->begin_transaction();
     
     try {
-        // First, handle related records if they exist
         if ($hasRelatedRecords) {
-            // Update or delete related records as needed
             if (isset($relatedCounts['products'])) {
-                // Option 1: Set supplier_id to NULL for products
                 $updateProducts = $conn->prepare("UPDATE products SET supplier_id = NULL WHERE supplier_id = ?");
                 if ($updateProducts === false) {
                     throw new Exception('Failed to prepare products update: ' . $conn->error);
@@ -87,7 +77,6 @@ try {
             }
             
             if (isset($relatedCounts['deliveries'])) {
-                // Option 2: Delete related deliveries (or handle differently if needed)
                 $deleteDeliveries = $conn->prepare("DELETE FROM supplier_deliveries WHERE supplier_id = ?");
                 if ($deleteDeliveries === false) {
                     throw new Exception('Failed to prepare deliveries delete: ' . $conn->error);
@@ -99,7 +88,6 @@ try {
             }
         }
 
-        // Then delete the supplier
         $deleteStmt = $conn->prepare("DELETE FROM suppliers WHERE id = ?");
         if ($deleteStmt === false) {
             throw new Exception('Database prepare failed: ' . $conn->error);
@@ -110,7 +98,6 @@ try {
             throw new Exception('Delete failed: ' . $deleteStmt->error);
         }
         
-        // Commit transaction
         $conn->commit();
         
         if ($hasRelatedRecords) {
@@ -127,7 +114,6 @@ try {
         }
         
     } catch (Exception $e) {
-        // Rollback transaction on error
         $conn->rollback();
         throw $e;
     }

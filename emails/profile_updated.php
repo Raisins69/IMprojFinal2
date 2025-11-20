@@ -1,12 +1,3 @@
-<?php
-/**
- * Profile Updated Email Template
- * 
- * Variables available:
- * - $user: Array containing user information (id, name, email, etc.)
- * - $updateTime: Formatted date and time of the update
- */
-?>
 <!DOCTYPE html>
 <html>
 <head>

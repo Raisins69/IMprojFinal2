@@ -5,16 +5,13 @@ include '../includes/header.php';
 $message = '';
 $message_type = '';
 
-// Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get form data
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $subject = trim($_POST['subject'] ?? '');
     $message_content = trim($_POST['message'] ?? '');
     
-    // Basic validation
     $errors = [];
     
     if (empty($name)) {
@@ -33,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Message is required';
     }
     
-    // If no validation errors, save to database
     if (empty($errors)) {
         try {
             $stmt = $conn->prepare("INSERT INTO contact_messages (name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)");
@@ -43,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = 'Thank you for your message! We will get back to you soon.';
                 $message_type = 'success';
                 
-                // Clear form
                 $_POST = [];
             } else {
                 throw new Exception('Failed to save your message. Please try again.');
@@ -283,7 +278,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="contact-content">
-        <!-- Contact Information -->
         <div class="contact-info">
             <h2>Contact Information</h2>
             
@@ -327,7 +321,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- Contact Form -->
         <div class="contact-form">
             <h2>Send us a Message</h2>
             <?php if ($message): ?>
@@ -405,7 +398,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Map Section -->
     <div class="map-container">
         <h2>📍 Find Us</h2>
         <div style="background: var(--dark); padding: 3rem; border-radius: var(--radius-md); text-align: center; border: 2px dashed rgba(155, 77, 224, 0.2);">
