@@ -25,6 +25,6 @@ $base_path = ($current_dir === 'admin') ? '.' : '..';
                 <?php endif; ?>
             </a>
         </li>
-        <li><a href="../logout.php">🚪 Logout</a></li>
+        <li><a href="../../logout.php">🚪 Logout</a></li>
     </ul>
 </aside>
