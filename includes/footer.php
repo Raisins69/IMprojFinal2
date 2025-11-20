@@ -11,7 +11,7 @@
         <div class="footer-section">
             <h4>Quick Links</h4>
             <ul>
-                <li><a href="/IMprojFinal/public/index.php">Shop</a></li>
+                <li><a href="/IMprojFinal/index.php">Shop</a></li>
                 <li><a href="/IMprojFinal/public/about.php">About</a></li>
                 <li><a href="/IMprojFinal/public/contact.php">Contact</a></li>
 
@@ -32,9 +32,9 @@
         <div class="footer-section">
             <h4>Help</h4>
             <ul>
-                <li><a href="#">FAQs</a></li>
-                <li><a href="#">Support</a></li>
-                <li><a href="#">Policies</a></li>
+                <li><a href="/IMprojFinal/public/about.php">FAQs</a></li>
+                <li><a href="/IMprojFinal/public/contact.php">Support</a></li>
+                <li><a href="/IMprojFinal/public/about.php">Policies</a></li>
             </ul>
         </div>
 
